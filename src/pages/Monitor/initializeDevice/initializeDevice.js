@@ -15,7 +15,7 @@ const { RangePicker } = DatePicker;
 @observer
 class IntializeModal extends Component {
   deviceInit = () => {                                     /**设备初始化 */
-    let { getFieldsValue } = this.props.form;
+  let { getFieldsValue } = this.props.form;
     let { date } = this.props;
     let { startTime, endTime } = date;
     let values = getFieldsValue();
@@ -45,26 +45,26 @@ class IntializeModal extends Component {
     let { imei } = params;
     let { initialize_modal } = store
     return (
-      <Modal visible={visible} title='初始化' onCancel={() => initialize_modal.visible = false} onOk={() => { this.deviceInit(); }} {...CommonModalConfig} >
-        <Form>
-          <Form.Item label='IMEI' {...CommonFormConfig}>
-            {getFieldDecorator('imei', { initialValue: imei })(<Input disabled />)}
-          </Form.Item>
-          <Form.Item label='角度均值时段：' {...CommonFormConfig}>
-            {getFieldDecorator('date')(<RangePicker locale={locale} onChange={(date, dateString) => { store.initialParams.startTime = dateString[0]; store.initialParams.endTime = dateString[1]; }} />)}
-          </Form.Item>
-          <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
-            {getFieldDecorator('warn_x', { initialValue: '' }, {
-              rules: [{ required: true, message: '请输入X轴警报值' }],
-            })(<Input placeholder='2' />)}
-          </Form.Item>
-          <Form.Item label='设置Y轴警报值' {...CommonFormConfig}>
-            {getFieldDecorator('warn_y', { initialValue: '' }, {
-              rules: [{ required: true, message: '请输入Y轴警报值' }],
-            })(<Input placeholder='2' />)}
-          </Form.Item>
-        </Form>
-      </Modal>
+        <Modal visible={visible} title='初始化' onCancel={() => initialize_modal.visible = false} onOk={() => { this.deviceInit(); }} {...CommonModalConfig} >
+          <Form>
+            <Form.Item label='IMEI' {...CommonFormConfig}>
+              {getFieldDecorator('imei', { initialValue: imei })(<Input disabled />)}
+            </Form.Item>
+            <Form.Item label='角度均值时段：' {...CommonFormConfig}>
+              {getFieldDecorator('date')(<RangePicker locale={locale} onChange={(date, dateString) => { store.initialParams.startTime = dateString[0]; store.initialParams.endTime = dateString[1]; }} />)}
+            </Form.Item>
+            <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
+              {getFieldDecorator('warn_x', { initialValue: '' }, {
+                rules: [{ required: true, message: '请输入X轴警报值' }],
+              })(<Input placeholder='2' />)}
+            </Form.Item>
+            <Form.Item label='设置Y轴警报值' {...CommonFormConfig}>
+              {getFieldDecorator('warn_y', { initialValue: '' }, {
+                rules: [{ required: true, message: '请输入Y轴警报值' }],
+              })(<Input placeholder='2' />)}
+            </Form.Item>
+          </Form>
+        </Modal>
     )
   }
 }
