@@ -3,16 +3,10 @@ import {Input, Button, Table, Pagination,Card,Select} from 'antd';
 import AddDevice from './addDevice'
 import store from "../store";
 import { observer } from 'mobx-react';
+import request from "../../../helpers/request";
 
 const Option = Select.Option;
 const Search = Input.Search;
-const selectBefore = (
-    <Select defaultValue='IMEI' style={{ width: 90 }}>
-        <Option value='IMEI'>IMEI</Option>
-        <Option value='IMSI'>IMSI</Option>
-        <Option value='ID'>ID</Option>
-    </Select>
-);
 
 const columns = [{
     title: 'IMEI',
@@ -21,35 +15,31 @@ const columns = [{
     title: 'IMSI',
     dataIndex: 'imsi',
 }, {
-    title: '公司名',
-    dataIndex: 'company',
-},{
     title: 'ID',
     dataIndex: 'id',
 },{
     title: '注册时间',
-    dataIndex: 'time',
+    dataIndex: 'create_date',
 },{
-    title: '注册状态',
-    dataIndex: 'status',
+    title: '更新时间',
+    dataIndex: 'update_date',
 }
 ];
 @observer
 export default class RegistrationStatus extends Component{
+    state={
+        selectValue:'imei'
+    };
     render(){
+        const selectBefore = (
+            <Select defaultValue='IMEI' style={{ width: 90 }} onChange={this.selectChange}>
+                <Option value='imei'>IMEI</Option>
+                <Option value='sensorID'>sensorID</Option>
+                <Option value='id'>ID</Option>
+            </Select>
+        );
         return(
             <Fragment>
-                {/*<span style={{display:'relative',height:'30px'}}>
-                    <Breadcrumb>
-                        <Breadcrumb.Item>显示传感器注册状态</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <Button
-                        type='primary'
-                        style={{}}
-                        onClick={()=>store.addDevice_modal.visible=true}
-                    >添加设备
-                    </Button>
-                </span>*/}
                 <Card
                     title="显示传感器注册状态"
                     extra={
@@ -71,33 +61,60 @@ export default class RegistrationStatus extends Component{
                         <Search
                             addonBefore={selectBefore}
                             placeholder="请输入搜索内容"
-                            onSearch={value => console.log(value)}
+                            onSearch={value => this.onSearch(value)}
                             enterButton
                             style={{width:'40%',marginLeft:'20px'}}
                         />
                     </div>
-                    <Table dataSource={store.reStatus_data} columns={columns} rowKey={record=>record.id} />
+                    <Table dataSource={store.reStatus_data} columns={columns} rowKey={(record,index)=>index} />
 
-                    <Pagination
+                   {/* <Pagination
                         size='small'
                         style={{margin:'150px 20% 20px'}}
                         total={90} showTotal={total => `总共 ${total} 条`}
                         onChange={this.onPageChange}
                         showSizeChanger showQuickJumper
-                        />
+                        />*/}
                 </Card>
                 <AddDevice props={store.addDevice_modal}/>
             </Fragment>
         );
     }
-    handleChange1=()=>{
+    selectChange=(value)=>{
+        this.setState({
+            selectValue:value
+        });
+        console.log('selectChange',value);
+    };
+    onSearch=(value)=>{
+        let key=this.state.selectValue;
+        let data={};
+        data[key]=value;
+        console.log('onSearch',value,data);
+        this.getData(data);
+    };
+    handleChange1=(value)=>{
         console.log('handleChange1')
     };
-    handleChange2=()=>{
-        console.log('handleChange2')
+    getData=(key)=>{
+        let data={};
+        if(key){
+            data=key
+        }
+        request({
+            url: 'api/select_machine',
+            method:'GET',
+            data,
+            success: ({
+                          data
+                      }) => {
+                console.log('api/select_machine',data);
+                store.reStatus_data=data;
+            }
+        });
     };
     componentDidMount(){
-        /*请求dataSouse*/
+        this.getData();
     };
 
 }

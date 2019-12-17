@@ -19,15 +19,14 @@ class IntializeModal extends Component {
     let { date } = this.props;
     let { startTime, endTime } = date;
     let values = getFieldsValue();
-    let { imei, warn_x, warn_y } = values;
+    let { sensorID } = values;
     request({
-      url: 'api/adjust_initial_angle',
+      /*url: 'api/adjust_initial_angle',*/
+      url:'api/adjust_angle',
       data: {
-        "imei": imei,
+        "machine_site_id": store.machine_site_id,
         startTime,
         endTime,
-        warn_x,
-        warn_y,
       },
       success: (res) => {
         console.log(res);
@@ -42,18 +41,18 @@ class IntializeModal extends Component {
     const { getFieldDecorator, getFieldError, isFieldTouched } = this.props.form;
     let { props, params } = this.props;
     let { visible } = props;
-    let { imei } = params;
-    let { initialize_modal } = store
+    /*let { machine_site_id } = params;*/
+    let { initialize_modal } = store;
     return (
         <Modal visible={visible} title='初始化' onCancel={() => initialize_modal.visible = false} onOk={() => { this.deviceInit(); }} {...CommonModalConfig} >
           <Form>
-            <Form.Item label='IMEI' {...CommonFormConfig}>
-              {getFieldDecorator('imei', { initialValue: imei })(<Input disabled />)}
+            <Form.Item label='sensorID' {...CommonFormConfig}>
+              {getFieldDecorator('sensorID', { initialValue: store.sensorID })(<Input disabled />)}
             </Form.Item>
             <Form.Item label='角度均值时段：' {...CommonFormConfig}>
               {getFieldDecorator('date')(<RangePicker locale={locale} onChange={(date, dateString) => { store.initialParams.startTime = dateString[0]; store.initialParams.endTime = dateString[1]; }} />)}
             </Form.Item>
-            <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
+           {/* <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
               {getFieldDecorator('warn_x', { initialValue: '' }, {
                 rules: [{ required: true, message: '请输入X轴警报值' }],
               })(<Input placeholder='2' />)}
@@ -62,7 +61,7 @@ class IntializeModal extends Component {
               {getFieldDecorator('warn_y', { initialValue: '' }, {
                 rules: [{ required: true, message: '请输入Y轴警报值' }],
               })(<Input placeholder='2' />)}
-            </Form.Item>
+            </Form.Item>*/}
           </Form>
         </Modal>
     )

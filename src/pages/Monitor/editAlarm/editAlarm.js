@@ -15,17 +15,19 @@ class EditAlarm extends Component{
   setWarnData = () => {
     let { getFieldsValue } = this.props.form;
     let values = getFieldsValue();
-    let { imei, angle_x, angle_y, warn_x, warn_y, phone } = values;
+    let { site_id,site_name,site_address,site_longitude,site_latitude,tower_hight,alert_distance,alert_phone } = values;
     request({
-      url: '/api/Set_warn',
+      /*url: '/api/Set_warn',*/
+      url:'/api/update_site',
       data: {
-        imei: imei,
-        Tower_id: 1,
-        angle_x,
-        angle_y,
-        warn_x,
-        warn_y,
-        phone: phone,
+        site_id,
+        site_name,
+        site_address,
+        site_longitude,
+        site_latitude,
+        tower_hight,
+        alert_distance,
+        alert_phone
       },
       success: (res) => {
         console.log(res);
@@ -36,111 +38,78 @@ class EditAlarm extends Component{
       }
     })
   };
-  // deviceInit = (imei,angle_x,angle_y,alarm_x,alarm_y) => {                                     /**设备初始化 */
-  //   request({
-  //     url: `${route}/v1/device/init`,
-  //     method: 'GET',
-  //     data: {
-  //       "imei": imei,
-  //       "X0": angle_x,
-  //       "Y0": angle_y,
-  //       "X1": alarm_x,
-  //       "Y1": alarm_y
-  //     },
-  //     success: (res) => {
-  //       // res = JSON.parse(res);
-  //       // let id = res.id;
-  //       // this.initData()
-  //     },
-  //     complete: () => {
-  //       // store.initialize_modal.visible = false
-  //     }
-  //   })
-  // }
   render(){
     const { getFieldDecorator } = this.props.form;
     let { props, params } = this.props;
+    console.log('params',params);
     let { visible } = props;
-    let { imei, Tower_id, X0, Y0, angle } = params;
+    let { site_id,site_name,site_address,site_longitude,site_latitude,tower_hight,alert_distance,alert_phone } = params;
     return(
-        <Modal visible={visible} title='警报指数设置'{...CommonModalConfig} onCancel={() => store.alarm_modal.visible = false} onOk={() => {this.setWarnData()}}>
+        <Modal
+            visible={visible}
+            title='警报指数设置'
+            {...CommonModalConfig}
+            onCancel={() => store.alarm_modal.visible = false}
+            onOk={() => {this.setWarnData()}}>
           <Form>
-            <FormItem label='传感器IMEI：' {...CommonFormConfig}>
+            <FormItem label='站名：' {...CommonFormConfig}>
               {
-                getFieldDecorator('imei', {initialValue: imei},{
+                getFieldDecorator('site_name', {initialValue: site_name},{
                   rules: [{
-                    required: true, message: '请输入倾角值',
+                    required: true, message: '请输入站名',
                   }],
                 })(
                     <Input disabled/>
                 )
               }
             </FormItem>
-            <FormItem label='铁塔ID：' {...CommonFormConfig}>
+            <FormItem label='站点编码：' {...CommonFormConfig}>
               {
-                getFieldDecorator('IronTId', { initialValue: Tower_id },{
+                getFieldDecorator('site_id', {initialValue: site_id},{
                   rules: [{
-                    required: true, message: '请输入铁塔ID',
+                    required: true, message: '请输入站点编码',
                   }],
                 })(
-                    <Input disabled placeholder='请输入铁塔ID'/>
+                    <Input disabled/>
                 )
               }
             </FormItem>
-            <FormItem label='X轴初始角度：' {...CommonFormConfig}>
+            <FormItem label='站名地址：' {...CommonFormConfig}>
               {
-                getFieldDecorator('angle_x', { initialValue: X0 },{
+                getFieldDecorator('site_address', { initialValue: site_address },{
                   rules: [{
-                    required: true, message: '请输入倾角值',
+                    required: true, message: '请输入站名地址',
                   }],
                 })(
+                    <Input disabled placeholder='请输入站名地址'/>
+                )
+              }
+            </FormItem>
+            <FormItem label='站点经度：' {...CommonFormConfig}>
+              {
+                getFieldDecorator('site_longitude', { initialValue: site_longitude },)(
                     <Input disabled />
                 )
               }
             </FormItem>
-            <FormItem label='Y轴初始角度：' {...CommonFormConfig}>
+            <FormItem label='站点纬度：' {...CommonFormConfig}>
               {
-                getFieldDecorator('angle_y', { initialValue: Y0 },{
-                  rules: [{
-                    required: true, message: '请输入倾角值',
-                  }],
-                })(
+                getFieldDecorator('site_latitude', { initialValue: site_latitude },)(
                     <Input disabled />
                 )
               }
             </FormItem>
-            <FormItem label='初始倾斜角：' {...CommonFormConfig}>
+            <FormItem label='铁塔高度：' {...CommonFormConfig}>
               {
-                getFieldDecorator('initialTilt', { initialValue: angle },)(
+                getFieldDecorator('tower_hight', { initialValue: tower_hight },)(
                     <Input disabled />
-                )
-              }
-            </FormItem>
-            <FormItem label='X轴预警值：' {...CommonFormConfig}>
-              {
-                getFieldDecorator('warn_x', {
-                  rules: [{
-                    required: true, message: '请输入X轴预警值',
-                  }],
-                })(
-                    <Input placeholder='大于或等于该倾角值将自动警报'/>
-                )
-              }
-            </FormItem>
-            <FormItem label='Y轴预警值：' {...CommonFormConfig}>
-              {
-                getFieldDecorator('warn_y', {
-                  rules: [{
-                    required: true, message: '请输入Y轴预警值',
-                  }],
-                })(
-                    <Input placeholder='大于或等于该倾角值将自动警报'/>
                 )
               }
             </FormItem>
             <FormItem label='距离预警值：' {...CommonFormConfig}>
               {
-                getFieldDecorator('warn_distance', {
+                getFieldDecorator('alert_distance', {
+                  initialValue: alert_distance,
                   rules: [{
                     required: true, message: '请输入距离预警值',
                   }],
@@ -151,7 +120,8 @@ class EditAlarm extends Component{
             </FormItem>
             <FormItem label='警报电话：' {...CommonFormConfig}>
               {
-                getFieldDecorator('phone', {
+                getFieldDecorator('alert_phone', {
+                  initialValue: alert_phone,
                   rules: [{
                     required: true, message: '请输入电话号码',
                   }],
@@ -160,25 +130,6 @@ class EditAlarm extends Component{
                 )
               }
             </FormItem>
-            {/* <FormItem label='当前日期：' {...CommonFormConfig}>
-            {
-              getFieldDecorator('firstManager', {
-                rules: [{
-                  required: true, message: '请输入负责人',
-                }],
-              })(
-                <DatePicker defaultValue= { moment(now,'YYYY-MM-DD ')} disabled />
-              )
-            }
-          </FormItem> */}
-            {/* <FormItem label='负责人：' {...CommonFormConfig}>
-            {
-              getFieldDecorator('secondManager', {
-              })(
-                <Input placeholder='请输入负责人姓名'/>
-              )
-            }
-          </FormItem> */}
           </Form>
         </Modal>
     )

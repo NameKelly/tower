@@ -1,5 +1,5 @@
 import React ,{Component} from 'react';
-import { Modal, Form, Input,AutoComplete} from 'antd';
+import { Modal, Form, Input,AutoComplete,Button,message} from 'antd';
 import { observer } from 'mobx-react';
 import store from '../../store';
 import request from './../../../../helpers/request';
@@ -10,26 +10,21 @@ const FormItem = Form.Item;
 
 @observer
 class Revise extends Component{
-    setReviseData=()=>{
+    setReviseData=(type)=>{
         let { getFieldsValue } = this.props.form;
         let values = getFieldsValue();
-        let { sensorID, install_height, site} = values;
+        let { imei,imsi,sensorID, tower_hight, site_name,site_address,maintain_company} = values;
         request({
-            url: 'api/sensor_data_mysql',
+            url: 'api/examine_tower',
             data: {
-                sensorID:store.reviewChange.sensorID,
-                install_height:store.reviewChange.install_height,
-                site:store.reviewChange.site,
-                Tower_addr:store.reviewChange.addr,
+                id:store.reviseMsg.site_id,
+                type:type,
             },
             success: (res) => {
-                console.log("res",res,store.reviewChange.sensorID,store.reviewChange.install_height,store.reviewChange.site,store.reviewChange.addr);
+
             },
             complete: () => {
                 store.revise_modal.visible = false;
-                this.props.form.resetFields();
-               /* this.sql();*/
-
             }
         })
     };
@@ -39,9 +34,22 @@ class Revise extends Component{
         let { visible } = props;
 
         return(
-            <Modal visible={visible} title='传感器设置'{...CommonModalConfig}
-                   onCancel={() => store.revise_modal.visible= false}
-                   onOk={() => {this.setReviseData()}}>
+            <Modal
+                visible={visible}
+                title='传感器设置'
+                {...CommonModalConfig}
+                footer={[
+                    <Button key="pass" type="primary" onClick={()=>this.setReviseData('通过')}>
+                        通过
+                    </Button>,
+                    <Button key="noPass" type="primary" onClick={()=>this.setReviseData('不通过')}>
+                        不通过
+                    </Button>,
+                    <Button key="cancel" onClick={() => store.revise_modal.visible= false}>
+                        取消
+                    </Button>,
+                ]}
+                   >
                 <Form>
                     <FormItem label='传感器IMEI：' {...CommonFormConfig}>
                         {
@@ -50,7 +58,7 @@ class Revise extends Component{
                                      message: '传感器IMEI',
                                 }],
                             })(
-                                <Input placeholder={store.reviewChange.imei} disabled/>
+                                <Input placeholder={store.reviseMsg.imei} disabled/>
                             )
                         }
                     </FormItem>
@@ -61,7 +69,7 @@ class Revise extends Component{
                                     message: '请输入传感器IMSI',
                                 }],
                             })(
-                                <Input placeholder={store.reviewChange.imsi} disabled/>
+                                <Input placeholder={store.reviseMsg.imsi} disabled/>
                             )
                         }
                     </FormItem>
@@ -72,55 +80,63 @@ class Revise extends Component{
                                     message: '请输入铁塔sensorID',
                                 }],
                             })(
-                                <Input disabled placeholder={store.reviewChange.sensorID}/>
+                                <Input disabled placeholder={store.reviseMsg.sensorID}/>
                             )
                         }
                     </FormItem>
-
-                    <FormItem label='高度：' {...CommonFormConfig}>
-                        {
-                            getFieldDecorator('install_height', {
-                                rules: [{
-                                    required: true, message: '请输入高度',
-                                }],
-                            })(
-                                <Input onChange={(e)=>{this.handleChangeHeight(e)}} placeholder={store.reviewChange.install_height}/>
-                            )
-                        }
-                    </FormItem>
-
-
                     <FormItem label='站名：' {...CommonFormConfig}>
                         {
-                            getFieldDecorator('site', {
+                            getFieldDecorator('site_name', {
                                 rules: [{
-                                    required: true, message: '请输入站名',
+                                    required: false, message: '请输入站名',
                                 }],
                             })(
                                 <AutoComplete
                                     dataSource={store.reviseSite_data}
                                     allowClear={true}
-                                    onBlur={this.onBlur}
                                     onChange={(value)=>{this.filterData(value)}}
                                     style={{ marginBottom: 5 ,width:'100%'}}
+                                    disabled
                                 >
-                                <Input onChange={(e)=>{this.handleChangeSite(e)}} placeholder={store.reviewChange.site}/>
+                                <Input onChange={(e)=>{this.handleChangeSite(e)}} placeholder={store.reviseMsg.site_name}/>
                                 </AutoComplete>
                             )
                         }
                     </FormItem>
+
                     <FormItem label='地址：' {...CommonFormConfig}>
                         {
-                            getFieldDecorator('addr', {
+                            getFieldDecorator('site_address', {
                                 rules: [{
                                     message: '请输入地址',
                                 }],
                             })(
-                                <Input disabled placeholder={store.reviewChange.addr}/>
+                                <Input placeholder={store.reviseMsg.site_address}/>
                             )
                         }
                     </FormItem>
-
+                    <FormItem label='高度：' {...CommonFormConfig}>
+                        {
+                            getFieldDecorator('tower_hight', {
+                                rules: [{
+                                    required: false, message: '请输入高度',
+                                }],
+                            })(
+                                <Input  onChange={(e)=>{this.handleChangeHeight(e)}} placeholder={store.reviseMsg.tower_hight}/>
+                            )
+                        }
+                    </FormItem>
+                    <FormItem label='代维公司：' {...CommonFormConfig}>
+                        {
+                            getFieldDecorator('maintain_company', {
+                                rules: [{
+                                    message: '请输入地址',
+                                }],
+                            })(
+                                <Input placeholder={store.reviseMsg.maintain_company}/>
+                            )
+                        }
+                    </FormItem>
                 </Form>
             </Modal>
         );
@@ -131,24 +147,21 @@ class Revise extends Component{
         console.log('handleChangeHeight',store.reviewChange.install_height);
     };
     handleChangeSite=(e)=>{
-       /* let value=e.target.value;
-        let index=store.reviseSite_data.indexOf(value);
-        console.log('index',index,value);
-        store.reviewChange.site=value;
-        store.reviewChange.addr=store.reviseAddr_data[index];*/
+
     };
     filterData=(value)=>{
         request({
             url: 'api/select_site',
+            method:'GET',
             data:{
-                keyword:value,
+                site_name:value,
             },
             success: (res) => {
                 console.log('res',res,'res.data',res.data);
                 let data=Array.from(res.data);
                 console.log('是否为数组',data instanceof Array,data);
-                let siteList=data.map(v=>v.site);
-                let addrList=data.map(v=>v.addr);
+                let siteList=data.map(v=>v.site_name);
+                let addrList=data.map(v=>v.site_address);
 
                 store.reviseSite_data=siteList;
                 store.reviseAddr_data=addrList;
@@ -165,25 +178,6 @@ class Revise extends Component{
                store.reviewChange.addr=store.reviseAddr_data[index];
 
 };
-    /*setData=()=>{
-        request({
-            url: 'api/select_site',
-            data:{
-                keyword:'keywords'
-            },
-            success: (res) => {
-                console.log('res',res,'res.data',res.data);
-               let data=Array.from(res.data);
-               console.log('是否为数组',data instanceof Array,data);
-               let siteList=data.map(v=>v.site);
-               let addrList=data.map(v=>v.addr);
-
-               store.reviseSite_data=siteList;
-               store.reviseAddr_data=addrList;
-            }
-        })
-    };*/
-
 
 }
 export default Form.create()(Revise);

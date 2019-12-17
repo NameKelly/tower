@@ -7,28 +7,36 @@ import store from "../store";
 const InputGroup = Input.Group;
 const Search=Input.Search;
 export default class AddSite extends Component{
+    state={
+        fileName:''
+    };
     handleUpload=({action, file, onSuccess, onError})=>{
-        /*let _this=this;
+        this.setState({
+            fileName:file.name
+        });
+        console.log('action, file',file);
+        let _this=this;
         request({
-            url: '',
-            postType: 'formdata',
+            url: action,
             data: {
-                file: file
+                excel_file:file
             },
             success: (res) => {
+                console.log(res);
                 onSuccess();
                 console.log(res);
             },
-            complete: () => {
+            complete: (res) => {
+                console.log('res',res);
                 onError();
-                console.log('complete');
             }
-        })*/
+        })
     };
     render(){
         let uploadOptions = {
             name: 'file',
-            action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+            /*action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',*/
+            action:'api/upload_excel',
             withCredentials: true,
             customRequest: this.handleUpload,
             showUploadList: false
@@ -45,7 +53,7 @@ export default class AddSite extends Component{
                             <Form.Item label='导入Excel表格'>
                                 <Upload { ...uploadOptions} style={{paddingBottom:0}}>
                                     <InputGroup style={{paddingBottom:0,display:'inlineBlock'}}>
-                                        <Input style={{width:200}} readOnly/>
+                                        <Input style={{width:200}} readOnly placeholder={this.state.fileName}/>
                                         <Input value='浏览' style={{width:50,cursor:'pointer'}} readOnly/>
                                     </InputGroup>
                                 </Upload>

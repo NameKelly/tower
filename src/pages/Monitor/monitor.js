@@ -55,55 +55,271 @@ class Monitor extends React.Component {
   }];
   columns = [ {
     title: '站名',
-    dataIndex: 'site',
+    dataIndex: 'site_name',
     width: 90,
+    key:'1',
     className: style.siteBox,
     render: (text, record,index) => {
-      return <a onClick={(e) => { e.preventDefault(); this.getDataList(index,text)}}>{text}</a>
+      return <a onClick={(e) => { e.preventDefault(); this.select_site(record.site_id)}}>{text}</a>
     }
   }];
+  sensorIDColumns=[ {
+    title: '传感器信息',
+    colSpan: 2,
+    dataIndex: 'sensorID',
+    width: 120,
+    key:'2',
+    className: style.sensorID,
+    render: (text, record,index) => {
+      return <a onClick={(e) => { e.preventDefault(); this.getDeviceData('rowChoose',text,record)}}>{text}</a>
+    }
+  },
+    {
+      width: 70,
+      key:'3',
+      className: style.sensorID,
+      render: (index,record,text)=>{
+          return record.sensorID!='全部'?<Button size='small' onClick={() => {store.initialize_modal.visible = true;store.sensorID=record.sensorID}}>初始化</Button>:''
+      }
+    }];
   workColumns = [{
     title: '状态',
     dataIndex: 'deviceState',
     width: 120,
+    key:'01',
   }, {
     title: '倾角',
     dataIndex: 'angle',
     width: 90,
+    key:'02',
   }, {
     title: 'X轴倾角',
     dataIndex: 'angle_x',
-    width: 90
+    width: 90,
+    key:'03',
 
   }, {
     title: 'Y轴倾角',
     dataIndex: 'angle_y',
-    width: 90
+    width: 90,
+    key:'04',
 
   },{
     title: '高度',
     dataIndex: 'height',
-    width: 90
+    width: 90,
+    key:'05',
 
   },  {
     title: '偏移距离',
     dataIndex: 'angle_range',
-    width: 90
+    width: 90,
+    key:'06',
 
   }, {
     title: '方差',
     dataIndex: 'variance',
-    width: 90
+    width: 90,
+    key:'07',
 
   }, {
     title: '日期',
     dataIndex: 'create_time',
-    width: 150
+    width: 150,
+    key:'08',
   }, ];
 
-  componentDidMount() {
+  getOption2;
+
+  render() {
+    this.getOption2=(title, series)=>{
+      return{
+        title: {
+          text: title
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        legend: {
+          data:store.echartsData
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {}
+          }
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: store.echartsXData
+        },
+        yAxis: {
+          type: 'value'
+        },dataZoom: [{
+          show: true,
+          start: 10,
+          end: 90,
+          realtime: true
+        }, {
+          type: 'slider'
+        }],
+        series: series
+      }
+    };
+    var arr = [];
+    let {
+      alarm_modal,
+      initialize_modal,
+      realtimeData,
+      basicMsg,
+      initialParams,
+      months_data,
+      fetchList,
+      sensorID_data,
+      initialData
+    } = store;
+    let {
+      site_id,
+      site_name,
+      site_address,
+      tower_hight,
+      alert_phone,
+      alert_distance,
+      company_id,
+      site_longitude,
+      site_latitude
+    } = basicMsg;
+
+    return (
+        <Fragment>
+          <Breadcrumb>
+            <Breadcrumb.Item>监控页</Breadcrumb.Item>
+          </Breadcrumb>
+          <Row gutter={3} >
+            <Col span={5} style={{ height: 1030, zIndex: 5 }}>
+              <Card title='工作铁塔' style={{ height: "100%",width:"100%"}}>
+                <AutoComplete
+                    dataSource={store.search}
+                    onSelect={(value)=>this.onSelect(value)}
+                    onSearch={this.handleSearch}
+                    allowClear={true}
+                    onBlur={this.onBlur}
+                    style={{ marginBottom: 5 ,width:'100%'}}
+                >
+                  <Input
+                      prefix={(
+                          <Icon type="search" />
+                      )}
+                  />
+                </AutoComplete>
+                {/*,tableLayout:'fixed',overflow:'hidden'    style={{width:'100%',fontSize:'10px'}}*/}
+                <Table dataSource={fetchList} columns={this.columns} rowKey={(record,index) => index} size='small' style={{width:'100%',fontSize:'10px',tableLayout:'fixed',overflow:'hidden' }} />
+              </Card>
+            </Col>
+            <Col>
+              <Row gutter={3}>
+                <Col span={5} style={{ height: 600 }}>
+                  <Card title='基本信息' style={{ height: 360 }}>
+                   {/* <h4>IMEI: <span className={style.basicMessage}>{imei}</span></h4>*/}
+                    <h4>站名: <span className={style.basicMessage}>{site_name}</span></h4>
+                    <h4>站点地址: <span className={style.basicMessage}>{site_address}</span></h4>
+                    <h4>经纬度: <span className={style.basicMessage}>({site_longitude},{site_latitude})</span></h4>
+                    <h4>铁塔高度: <span className={style.basicMessage}>{tower_hight}</span></h4>
+                    <h4>距离警报指数: <span className={style.basicMessage}>{alert_distance}</span></h4>
+                    <h4>警报电话: <span className={style.basicMessage}>{alert_phone}</span></h4>
+                   {/* <h4>创建时间: <span className={style.basicMessage}>{create_time}</span></h4>*/}
+                    <h4>警报功能设置
+                      <Button size='small' type='primary' style={{ float: 'right' }} onClick={() => {
+                        alarm_modal.visible = true
+                      }}>编辑</Button>
+                    </h4>
+                  </Card>
+                  <Card style={{marginTop:10,height:220}}>
+                    <Table
+                        dataSource={sensorID_data}
+                        columns={this.sensorIDColumns}
+                        rowKey={(record,index)=>index}
+                        size='small'
+                        pagination={false}
+                        style={{height:'100%',overflow:'hidden'}}
+                    />
+                  </Card>
+                    </Col>
+                <Col span={13} style={{ marginBottom: 12 }} style={{ height: 180, marginBottom: 10 }}>
+                  <Card title='实时工作状态' style={{ height: "100%" }}
+                        extra={<div>最近一次更新：{realtimeData!={}?realtimeData.create_time:''}</div>}>
+                    <div style={{ display: 'flex' }}>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>倾角</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>x轴倾角</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>y轴倾角</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>高度</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>偏移距离</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>
+                    </div>
+                    <div style={{ display: 'flex', marginTop: 10, alignItems:'center' }}>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle:''}°</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle_x:''}°</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle_y:''}°</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.height:''}m</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle_range:''}cm</span></div>
+                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{''}cm</span></div>
+
+                    </div>
+                  </Card>
+                </Col>
+                <Col span={13} style={{ height: 400 }}>
+
+                  <Card title='本月工作情况' style={{ height: "100%" }}
+                        extra={<Link to={'/historyStatus'}>历史工作情况</Link>} >
+                    <Table columns={this.workColumns} dataSource={months_data} size={"small"} pagination={false} scroll={{ y: 200 }} rowKey={(record,index)=>index} />
+                  </Card>
+                </Col>
+                <Col span={18} style={{ marginTop: 10, height: 420 }}>
+                  <Card style={{ height: '100%' }} bordered={false} bodyStyle={{ padding: '0 0 32px 0' }}>
+                    {/* <ReactEcharts option={this.getOption()} style={{ width: '100%' }} notMerge={true} lazyUpdate={true} ></ReactEcharts>*/}
+                    <Tabs size='large' tabBarExtraContent={<div>日期:{realtimeData!={}?realtimeData.create_time:''}</div>}>
+                      <TabPane tab="倾角图" key="1">
+                        <div style={{ padding: '0 24px', marginTop: 10 }}>
+                          <ReactEcharts option={this.getOption2('倾角图',store.series)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                        </div>
+                      </TabPane>
+                      <TabPane tab="电池电压图" key="2">
+                        <div style={{ padding: '0 24px', marginTop: 10 }}>
+
+                        </div></TabPane>
+                      <TabPane tab="工作温度图" key="3">
+                        <div style={{ padding: '0 24px', marginTop: 10 }}>
+                          <ReactEcharts option={this.getOption2('工作温度图',store.series3)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                        </div></TabPane>
+                    </Tabs>
+                  </Card>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+          <EditAlarm props={alarm_modal} params={basicMsg} initialDatas={initialData} />
+          <IntializeModal
+              props={initialize_modal}
+              params={basicMsg}
+              date={initialParams} />
+          <div style={{height:'50px',lineHeight:'50px',textAlign:'center'}}>copyright© 五邑大学系统工程研究所</div>
+        </Fragment>
+    )
+  }
+
+  componentWillMount() {
     this.getDevicesList();
   }
+  componentDidMount(){
+    this.getOption2('倾角图',store.series);
+    this.getOption2('工作温度图',store.series3)
+  };
   calAngle = (x, y) => {
     let cosX = Math.cos(x / 180);
     let cosY = Math.cos(y / 180);
@@ -123,274 +339,199 @@ class Monitor extends React.Component {
       angle = angle.toFixed(5);
       return angle
     }
-  }
-
-  render() {
-    var arr = [];
-    let {
-      alarm_modal,
-      initialize_modal,
-      realtimeData,
-      basicMsg,
-      initialParams,
-      months_data,
-      fetchList,
-      initialData
-    } = store;
-    let {
-      imei,
-      title,
-      site,
-      X0,
-      Y0,
-      X1,
-      Y1,
-      create_time,
-      angle,
-      state,
-      update_time,
-      angle_range
-    } = basicMsg;
-    let {
-      x,
-      y,
-      height,
-      variance,
-    } = realtimeData;
-    angle = parseFloat(angle).toFixed(3);
-    return (
-        <Fragment>
-          <Breadcrumb>
-            <Breadcrumb.Item>监控页</Breadcrumb.Item>
-          </Breadcrumb>
-          <Row gutter={3} >
-            <Col span={5} style={{ height: 800, zIndex: 5 }}>
-              <Card title='工作铁塔' style={{ height: "100%",width:"100%"}}>
-                <AutoComplete
-                    dataSource={store.search}
-                    onSelect={(value)=>this.onSelect(value)}
-                    onSearch={this.handleSearch}
-                    allowClear={true}
-                    onBlur={this.onBlur}
-                    style={{ marginBottom: 5 ,width:'100%'}}
-                >
-                  <Input
-                      prefix={(
-                          <Icon type="search" />
-                      )}
-                  />
-                </AutoComplete>
-                {/*,tableLayout:'fixed',overflow:'hidden'    style={{width:'100%',fontSize:'10px'}}*/}
-                <Table dataSource={fetchList} columns={this.columns} rowKey={record => record.index} size='small' style={{width:'100%',fontSize:'10px',tableLayout:'fixed',overflow:'hidden' }} />
-              </Card>
-            </Col>
-            <Col>
-              <Row gutter={3}>
-                <Col span={5} style={{ height: 450 }}>
-                  <Card title='基本信息' style={{ height: "100%" }} extra={<Button size='small' onClick={() => initialize_modal.visible = true}>初始化</Button>}>
-                    <h4>IMEI: <span className={style.basicMessage}>{imei}</span></h4>
-                    <h4>站名: <span className={style.basicMessage}>{site}</span></h4>
-                    <h4>创建时间: <span className={style.basicMessage}>{create_time}</span></h4>
-                    <h4>警报功能设置
-                      <Button size='small' type='primary' style={{ float: 'right' }} onClick={() => {
-                        alarm_modal.visible = true
-                      }}>编辑</Button>
-                    </h4>
-                    <h4 style={{ margin: '0 auto', fontSize: 16, whiteSpace: 'pre' }}>
-                      <br />X轴初始角度:  {X0}°
-                      <br />Y轴初始角度:  {Y0}°
-                      <br />X轴报警指数:  {X1}°
-                      <br />Y轴报警指数:  {Y1}°
-                      <br />距离报警指数：{angle_range}
-                      <br />初始倾斜角度:  {angle}°
-                      <br />初始化时间:  {update_time}
-                      <br />初始化结果:  {ini_state[state]}
-                    </h4>
-                  </Card>
-                </Col>
-                <Col span={13} style={{ marginBottom: 12 }} style={{ height: 180, marginBottom: 10 }}>
-                  <Card title='实时工作状态' style={{ height: "100%" }}
-                        extra={<div>最近一次更新：{realtimeData.create_time}</div>}>
-                    <div style={{ display: 'flex' }}>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>倾角</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>x轴倾角</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>y轴倾角</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>高度</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>偏移距离</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>
-                    </div>
-                    <div style={{ display: 'flex', marginTop: 10, alignItems:'center' }}>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData.angle}°</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{x}°</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{y}°</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{height}m</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData.angle_range}cm</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{variance}cm</span></div>
-
-                    </div>
-                  </Card>
-                </Col>
-                <Col span={13} style={{ height: 260 }}>
-
-                  <Card title='本月工作情况' style={{ height: "100%" }}
-                        extra={<Link to={'/historyStatus'}>历史工作情况</Link>} >
-                    <Table columns={this.workColumns} dataSource={months_data} size={"small"} pagination={false} scroll={{ y: 120 }} rowKey={record => record.index} />
-                  </Card>
-                </Col>
-                <Col span={18} style={{ marginTop: 10, height: 340 }}>
-                  <Card style={{ height: '100%' }} bordered={false} bodyStyle={{ padding: '0 0 32px 0' }}>
-                    {/* <ReactEcharts option={this.getOption()} style={{ width: '100%' }} notMerge={true} lazyUpdate={true} ></ReactEcharts>*/}
-                    <Tabs size='large' tabBarExtraContent={<div>日期:{realtimeData.create_time}</div>}>
-                      <TabPane tab="倾角图" key="1">
-                        <div style={{ padding: '0 24px', marginTop: -30 }}>
-                          <ReactEcharts option={this.getOption1()} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
-                        </div>
-                      </TabPane>
-                      <TabPane tab="电池电压图" key="2">
-                        <div style={{ padding: '0 24px', marginTop: -30 }}>
-                        </div></TabPane>
-                      <TabPane tab="工作温度图" key="3">
-                        <div style={{ padding: '0 24px', marginTop: -30 }}>
-                        </div></TabPane>
-                    </Tabs>
-                  </Card>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-          <EditAlarm props={alarm_modal} params={basicMsg} initialDatas={initialData} />
-          <IntializeModal props={initialize_modal} params={basicMsg} date={initialParams} />
-          <div style={{height:'50px',lineHeight:'50px',textAlign:'center'}}>copyright© 五邑大学系统工程研究所</div>
-        </Fragment>
-    )
-  }
-  onBlur=()=>{
-    store.search=[]
   };
-  handleSearch = (value) => {
-    let inputValue=value;
+  //传感器信息
+  select_tower=(site_id)=>{
     request({
-      url: 'api/select_site',
+      url: 'api/select_tower',
+      method:'GET',
       data:{
-        keyword:value
+        site_id:site_id
       },
       success: ({
                   data
                 }) => {
-        console.log('api/select_site',data);
-
-        let siteValue = data.map(v => v.site);
-        store.siteValue = siteValue;
-        store.search= store.siteValue.filter(function (item) {
-          //遍历数组，返回值为true保留并复制到新数组，false则过滤掉
-          return item.includes(inputValue);
-        });
-
-        store.fetchList=data;
-
-      }
+        console.log('api/select_tower',site_id,data);
+        store.sensorID_data=[{sensorID:'全部'}];
+        let dataSource=store.sensorID_data.concat(data);
+        store.sensorID_data =dataSource;
+        console.log('sensorID_data',dataSource,store.sensorID_data);
+        this.getDeviceData(store.sensorID_data[1].sensorID);//初始传感器历史数据
+     }
     });
-
+  };
+  onBlur=()=>{
+    store.search=[]
+  };
+  handleSearch = (value) => {
+    this.getDevicesList(value);
   };
   onSelect=(value)=> {
     console.log('onSelect', value);
     store.search=[]
   };
-  getDevicesList = () => {
-    request({
-      url: 'api/show_sensor_list',
-      success: ({
-                  data
-                }) => {
-        store.fetchList = data;
-        let imei = store.fetchList[0].imei;
-        store.currentImei=imei;
-        this.getDataList(0);
-        console.log('show_sensor_list',data)
-      }
-    })
-  };
-  getDeviceData = (imei) => {
-    request({
-      url: 'api/show_adjust_angle',
-      data: {
-        imei
-      },
-      success: ({
-                  data
-                }) => {
-        store.basicMsg = data[0];
-        this.getCurrentData(imei);
-        console.log('show_adjust_angle',data)
-      }
-    })
-  };
-  getDataList = (index,site) => {
-    store.currentImei=store.fetchList[index].imei;
-    request({
-      url: 'api/show_data_list',
-      data: {
-        imei:store.currentImei,
-        startTime,
-        endTime,
-        page: 1,
-        size: 31
-      },
-      success: ({
-                  data
-                }) => {
-        store.months_data = data;
-        console.log("api/show_data_list:months_data",data);
-        this.getDeviceData(store.currentImei);
-        this.getAngle(store.currentImei);
-      }
-    })
-  };
-  getCurrentData = (imei) => {
-    request({
-      url: 'api/Lately_data',
-      data: {
-        imei
-      },
-      success: ({
-                  data
-                }) => {
-        store.realtimeData = data[0];
-        console.log('api/Lately_data',data)
-      }
-    })
-  };
-  getAngle = (imei) => {
-    request({
-      url: 'api/show_angle',
-      data: {
-        imei,
-      },
-      success: ({
-                  data
-                }) => {
-        console.log('api/show_angle',data);
-        let angleValue = data.map(v => v.angle);
-        let dateValue = data.map(v => v.create_time);
-        let xValue = data.map(v => v.angle_x);
-        let yValue = data.map(v => v.angle_y);
-        let rangeValue = data.map(v => v.angle_range);
-        // store.dateValue = dateValue;
-        let mydateValue = dateValue.filter(i => (i >= startTime && i <= endTime));
-        //选出本月的数据
-        store.dateValue = mydateValue;
 
-        store.angleValue = angleValue;
-        store.xValue = xValue;
-        store.yValue = yValue;
-        store.rangeValue = rangeValue;
-        /* console.log('mydateValue', mydateValue);
-         console.log(startTime);
-         console.log(endTime);*/
+  //站名列表
+  getDevicesList = (key) => {
+    let data={};
+    if(key){
+      data={
+        site_name:key
+      }
+    }
+    request({
+      /*url: 'api/show_sensor_list',*/
+      url:'api/select_site',
+      method: 'GET',
+      data,
+      success: ({
+                  data
+                }) => {
+
+        if(key){
+          console.log('模糊搜索数据',key,data);
+          let siteValue = data.map(v => v.site_name);
+          store.siteValue = siteValue;
+
+          store.search= store.siteValue.filter(function (item) {
+            //遍历数组，返回值为true保留并复制到新数组，false则过滤掉
+            return item.includes(key);
+          });
+        }
+        store.fetchList = data;//站名列表
+        store.site_id=data[0].site_id;
+        store.basicMsg = data[0];//站点基本信息
+        this.select_tower(store.site_id);//传感器信息(sensorID)
+        console.log('show_sensor_list',data);
+        //this.getDeviceData('site_id',data[0].site_id);//传感器历史数据
       }
     })
   };
-  /* getOption = () => {
+  //传感器历史数据
+  getDeviceData = (type,key,record) => {
+    let data={};
+    if(type=='site_id'){
+      data={
+        site_id:key
+      }
+    }else if(type=='machine_site_id'){
+      data={
+        machine_site_id:key
+      }
+    }else if(type=='rowChoose'){
+      if(key=='全部'){
+        data={
+          site_id:store.site_id
+        }
+      }else{
+        data={
+          sensorID:key
+        }
+      }
+    }
+      request({
+        /*url: 'api/show_adjust_angle',*/
+        url:'api/show_data_list',
+        method:'GET',
+        data: data,
+        success: ({
+                    data
+                  }) => {
+          console.log("哈哈哈",key,data);
+          if(data.length>0){
+            store.realtimeData = data[0];
+            store.months_data = data.slice(0,30);
+            store.machine_site_id=data[0].machine_site_id;
+          }else{
+            store.realtimeData ={};
+            store.months_data = [];
+            store.machine_site_id='';
+          }
+        let arr=this.filterData(store.months_data,'machine_site_id','sensorID');
+          this.getAngle(arr);
+          this.getTemperature(arr);
+        }
+      })
+  };
+  //选择站名
+  select_site=(key)=>{
+    request({
+      url:'api/select_site',
+      method:'GET',
+      data: {
+        site_id:key
+      },
+      success: ({
+                  data
+                }) => {
+        console.log("选择站名",key,data);
+        store.site_id=data[0].site_id;
+        store.basicMsg = data[0];
+        this.getDeviceData('site_id',data[0].site_id);
+        this.select_tower(store.site_id);
+      }
+    })
+};
+//重组数组，筛选数据
+  filterData=(arr,key,key2)=>{
+    let map = {},
+        dest = [];
+    for(let i = 0; i < arr.length; i++){
+      let ai = arr[i];
+      if(!map[ai[key]]){
+        dest.push({
+          [key]: ai[key],
+          [key2]:ai[key2],
+          data: [ai]
+        });
+        map[ai[key]] = ai;
+      }else{
+        for(let j = 0; j < dest.length; j++){
+          let dj = dest[j];
+          if(dj[key] == ai[key]){
+            dj.data.push(ai);
+            break;
+          }
+        }
+      }
+    }
+    console.log('重组数组',dest);
+    return dest;
+    /*this.getAngle(dest);*/
+  };
+//获取倾角图数据
+  getAngle=(arr)=>{
+    let filterArr=[];
+    arr.map((item)=>{
+      filterArr.push({
+        name:item.sensorID,
+        type:'line',
+        stack: '总量',
+        data:item.data.map(item=>item.angle)
+      })
+    });
+    console.log('store.series',store.series,arr);
+    store.series=filterArr;
+    store.echartsData=arr.map(item=>item.sensorID);
+    store.echartsXData=arr[0].data.map(item=>item.create_time)
+  };
+  //获取温度图数据
+  getTemperature=(arr)=>{
+    let filterArr=[];
+    arr.map((item)=>{
+      filterArr.push({
+        name:item.sensorID,
+        type:'line',
+        stack: '总量',
+        data:item.data.map(item=>item.deviceTemperature)
+      })
+    });
+    store.series3=filterArr;
+    store.echartsData=arr.map(item=>item.sensorID);
+    store.echartsXData=arr[0].data.map(item=>item.create_time)
+  };
+
+   getOption = () => {
      return {
        title: [{
          left: '3%',
@@ -447,7 +588,7 @@ class Monitor extends React.Component {
          data: store.rangeValue
        }]
      }
-   };*/
+   };
   getOption1 = () => {
     return {
       title:{
@@ -511,7 +652,7 @@ class Monitor extends React.Component {
         }
       }]
     }
-  }
+  };
 }
 
 

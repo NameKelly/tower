@@ -6,21 +6,7 @@ import request from "../../../helpers/request";
 import moment from 'moment';
 import {observer} from "mobx-react";
 const { TabPane } = Tabs;
-let {
-    x_add_arr,
-    y_add_arr,
-    x_big_arr,
-    y_big_arr
-} =store;
-const {
-    currentImei2,
-    currentSite2,
-    x_add_all,
-    y_add_all,
-    x_big_all,
-    y_big_all,
-    date_time2,
-} =store.warnCurrent;
+
 let {
     startTime,
     endTime
@@ -30,9 +16,13 @@ let {
 class Warn extends Component{
     columns=[{
         title: '站名',
-        dataIndex: 'site',
+        dataIndex: 'site_name',
         render: (text, record,index) => {
-            return <a onClick={(e) => { e.preventDefault(); this.getCurrent(index,text);}}>{text}</a>
+            return <a onClick={(e) => {
+                e.preventDefault();
+                this.getData(record,'1','1');
+                this.getData(record,'1','30','1');
+            }}>{text}</a>
         }
     }];
 
@@ -44,14 +34,13 @@ class Warn extends Component{
                     <Breadcrumb.Item>预警模型</Breadcrumb.Item>
                 </Breadcrumb>
                 <Row gutter={3}>
-                    <Col span={5} style={{ height: 600, zIndex: 5 }}>
+                    <Col span={5} style={{ height: 630, zIndex: 5 }}>
                         <Card title='工作铁塔' style={{height:'100%'}} size='small'>
                             <AutoComplete
                                 dataSource={store.search}
                                 onSelect={(value)=>this.onSelect(value)}
-                                onSearch={(value)=>this.handleSearch(value)}
+                                onSearch={(value)=>this.select_site('site_name',value)}
                                 allowClear={true}
-                                onBlur={this.onBlur}
                                 optionLabelProp='value'
                                 style={{ marginBottom: 5 ,width:'100%'}}
                             >
@@ -61,146 +50,174 @@ class Warn extends Component{
                                     )}
                                 />
                             </AutoComplete>
-                            <Table dataSource={store.fetchList} columns={this.columns} size='small' rowKey={record => record.index}
-                                   style={{fontSize:'10px'}}
+                            <Table
+                                dataSource={store.fetchList}
+                                columns={this.columns}
+                                size='small'
+                                rowKey={(record,index) =>index}
+                                style={{fontSize:'10px'}}
                             />
                         </Card>
                     </Col >
                     <Col span={19} style={{ height:600, zIndex: 5 }} >
                        <Card title='基本信息'  size='small' style={{height:'40%'}}>
-                           <Tabs  defaultActiveKey="1" activeKey={store.activeKey1} onChange={(activeKey)=>this.onChange1(activeKey)}>
-                               <TabPane tab="三天" key="1">
+                           <Tabs  defaultActiveKey="3" onChange={(activeKey)=>{this.getWarn(activeKey);this.onChange1(activeKey)}}>
+                               <TabPane tab="三天" key="3">
                                    <Row>
                                    <Row>
-                                       <Col span={10}><span>IMEI：{store.warnCurrent.currentImei2}</span></Col>
-                                       <Col span={6}><span>站名：{store.warnCurrent.currentSite2}</span></Col>
+                                       <Col span={10}><span>IMEI：{store.warnCurrent.length>0?store.warnCurrent[0].imei:''}</span></Col>
+                                       <Col span={6}><span>站名：{store.warnCurrent.length>0?store.warnCurrent[0].site_name:''}</span></Col>
                                    </Row>
                                    <Row>
-                                       <Col span={10}><span>X轴倾角累计：{store.warnCurrent.x_add_all}</span></Col>
-                                       <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.y_add_all}</span></Col>
+                                       <Col span={10}><span>X轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_x3:''}</span></Col>
+                                       <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_y3:''}</span></Col>
 
                                    </Row>
                                        <Row>
-                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.warn_addX}</span></Col>
-                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.warn_addY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_y:''}</span></Col>
                                        </Row>
                                    <Row>
-                                       <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.x_big_all}</span></Col>
-                                       <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.y_big_all}</span></Col>
+                                       <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_x3:''}</span></Col>
+                                       <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_y3:''}</span></Col>
 
                                    </Row>
                                        <Row>
-                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.warn_bigX}</span></Col>
-                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.warn_bigY}</span></Col>
+                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_y:''}</span></Col>
                                        </Row>
                                </Row>
                                </TabPane>
-                               <TabPane tab="五天" key="2">
+                               <TabPane tab="五天" key="5">
                                    <Row>
                                        <Row>
-                                           <Col span={6}><span>IMEI：{store.warnCurrent.currentImei2}</span></Col>
-                                           <Col span={6}><span>站名：{store.warnCurrent.currentSite2}</span></Col>
+                                           <Col span={10}><span>IMEI：{store.warnCurrent.length>0?store.warnCurrent[0].imei:''}</span></Col>
+                                           <Col span={6}><span>站名：{store.warnCurrent.length>0?store.warnCurrent[0].site_name:''}</span></Col>
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴倾角累计：{store.warnCurrent.x_add_all}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计：{store.warnCurrent.y_add_all}</span></Col>
-                                           <Col span={6}><span>X轴倾角累计预警值：{store.warnValue.warn_addX}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计预警值：{store.warnValue.warn_addY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_x5:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_y5:''}</span></Col>
+
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴最大倾角累计：{store.warnCurrent.x_big_all}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计：{store.warnCurrent.y_big_all}</span></Col>
-                                           <Col span={6}><span>X轴最大倾角累计预警值：{store.warnValue.warn_bigX}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计预警值：{store.warnValue.warn_bigY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_y:''}</span></Col>
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_x5:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_y5:''}</span></Col>
+
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_y:''}</span></Col>
                                        </Row>
                                    </Row>
                                </TabPane>
-                               <TabPane tab="七天" key="3">
+                               <TabPane tab="七天" key="7">
                                    <Row>
                                        <Row>
-                                           <Col span={6}><span>IMEI：{store.warnCurrent.currentImei2}</span></Col>
-                                           <Col span={6}><span>站名：{store.warnCurrent.currentSite2}</span></Col>
+                                           <Col span={10}><span>IMEI：{store.warnCurrent.length>0?store.warnCurrent[0].imei:''}</span></Col>
+                                           <Col span={6}><span>站名：{store.warnCurrent.length>0?store.warnCurrent[0].site_name:''}</span></Col>
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴倾角累计：{store.warnCurrent.x_add_all}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计：{store.warnCurrent.y_add_all}</span></Col>
-                                           <Col span={6}><span>X轴倾角累计预警值：{store.warnValue.warn_addX}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计预警值：{store.warnValue.warn_addY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_x7:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_y7:''}</span></Col>
+
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴最大倾角累计：{store.warnCurrent.x_big_all}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计：{store.warnCurrent.y_big_all}</span></Col>
-                                           <Col span={6}><span>X轴最大倾角累计预警值：{store.warnValue.warn_bigX}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计预警值：{store.warnValue.warn_bigY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_y:''}</span></Col>
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_x7:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_y7:''}</span></Col>
+
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_y:''}</span></Col>
                                        </Row>
                                    </Row>
                                </TabPane>
-                               <TabPane tab="十天" key="4">
+                               <TabPane tab="十天" key="10">
                                    <Row>
                                        <Row>
-                                           <Col span={6}><span>IMEI：{store.warnCurrent.currentImei2}</span></Col>
-                                           <Col span={6}><span>站名：{store.warnCurrent.currentSite2}</span></Col>
+                                           <Col span={10}><span>IMEI：{store.warnCurrent.length>0?store.warnCurrent[0].imei:''}</span></Col>
+                                           <Col span={6}><span>站名：{store.warnCurrent.length>0?store.warnCurrent[0].site_name:''}</span></Col>
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴倾角累计：{store.warnCurrent.x_add_all}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计：{store.warnCurrent.y_add_all}</span></Col>
-                                           <Col span={6}><span>X轴倾角累计预警值：{store.warnValue.warn_addX}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计预警值：{store.warnValue.warn_addY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_x10:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_y10:''}</span></Col>
+
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴最大倾角累计：{store.warnCurrent.x_big_all}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计：{store.warnCurrent.y_big_all}</span></Col>
-                                           <Col span={6}><span>X轴最大倾角累计预警值：{store.warnValue.warn_bigX}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计预警值：{store.warnValue.warn_bigY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_y:''}</span></Col>
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_x10:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_y10:''}</span></Col>
+
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_y:''}</span></Col>
                                        </Row>
                                    </Row>
                                </TabPane>
-                               <TabPane tab="十五天" key="5">
+                               <TabPane tab="十五天" key="15">
                                    <Row>
                                        <Row>
-                                           <Col span={6}><span>IMEI：{store.warnCurrent.currentImei2}</span></Col>
-                                           <Col span={6}><span>站名：{store.warnCurrent.currentSite2}</span></Col>
+                                           <Col span={10}><span>IMEI：{store.warnCurrent.length>0?store.warnCurrent[0].imei:''}</span></Col>
+                                           <Col span={6}><span>站名：{store.warnCurrent.length>0?store.warnCurrent[0].site_name:''}</span></Col>
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴倾角累计：{store.warnCurrent.x_add_all}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计：{store.warnCurrent.y_add_all}</span></Col>
-                                           <Col span={6}><span>X轴倾角累计预警值：{store.warnValue.warn_addX}</span></Col>
-                                           <Col span={6}><span>Y轴倾角累计预警值：{store.warnValue.warn_addY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_x15:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_add_y15:''}</span></Col>
+
                                        </Row>
                                        <Row>
-                                           <Col span={6}><span>X轴最大倾角累计：{store.warnCurrent.x_big_all}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计：{store.warnCurrent.y_big_all}</span></Col>
-                                           <Col span={6}><span>X轴最大倾角累计预警值：{store.warnValue.warn_bigX}</span></Col>
-                                           <Col span={6}><span>Y轴最大倾角累计预警值：{store.warnValue.warn_bigY}</span></Col>
+                                           <Col span={10}><span>X轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_add_y:''}</span></Col>
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_x15:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计：{store.warnCurrent.length>0?store.warnCurrent[0].angle_big_y15:''}</span></Col>
+
+                                       </Row>
+                                       <Row>
+                                           <Col span={10}><span>X轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_x:''}</span></Col>
+                                           <Col span={10}><span>Y轴最大倾角累计预警值：{store.warnValue.length>0?store.warnValue[0].angle_big_y:''}</span></Col>
                                        </Row>
                                    </Row>
                                </TabPane>
                            </Tabs>
                        </Card>
-                        <Card size='small' style={{marginTop:'15px',height:'60%'}}>
+                        <Card size='small' style={{marginTop:'15px',height:'65%'}}>
                             <Tabs defaultActiveKey="01"
                                   activeKey={store.activeKey2}
-                                  tabBarExtraContent={<span>日期：</span>}
+                                  tabBarExtraContent={<span>天数：{store.activeKey1}</span>}
                                   onChange={(activeKey)=>this.onChange2(activeKey)}
                             >
                                 <TabPane tab="X轴倾角累计图" key="01">
-                                    <div style={{  marginTop: -30 }}>
-                                        <ReactEcharts option={this.getOption1(store.warnCurrent.date_time2,store.x_add_arr,store.warnValue.warn_addX)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                                    <div style={{  marginTop: 0 }}>
+                                        <ReactEcharts option={this.getOption2('X轴倾角累计图',store.warn_x,store.angle_add_x)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                                     </div>
                                 </TabPane>
                                 <TabPane tab="Y轴倾角累计图" key="02">
-                                    <div style={{ marginTop: -30 }}>
-                                        <ReactEcharts option={this.getOption1(store.warnCurrent.date_time2,store.y_add_arr,store.warnValue.warn_addY)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                                    <div style={{ marginTop: 0 }}>
+                                        <ReactEcharts option={this.getOption2('Y轴倾角累计图',store.warn_x,store.angle_add_y)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                                     </div>
                                 </TabPane>
                                 <TabPane tab="X轴最大倾角累计图" key="03">
-                                    <div style={{  marginTop: -30 }}>
-                                        <ReactEcharts option={this.getOption1(store.warnCurrent.date_time2,store.x_big_arr,store.warnValue.warn_bigX)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                                    <div style={{  marginTop: 0 }}>
+                                        <ReactEcharts option={this.getOption2('X轴最大倾角累计图',store.warn_x,store.angle_big_x)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                                     </div>
                                 </TabPane>
                                 <TabPane tab="Y最大轴倾角累计图" key="04">
-                                    <div style={ {marginTop: -30 }}>
-                                        <ReactEcharts option={this.getOption1(store.warnCurrent.date_time2,store.y_big_arr,store.warnValue.warn_bigX)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                                    <div style={ {marginTop: 0 }}>
+                                        <ReactEcharts option={this.getOption2('Y最大轴倾角累计图',store.warn_x,store.angle_big_y)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                                     </div>
                                 </TabPane>
                             </Tabs>
@@ -210,114 +227,164 @@ class Warn extends Component{
             </Fragment>
         )
     }
-    componentWillMount() {
-        this.getWarnValue(store.day_number);
-        this.getCurrent(0,store.fetchList[0].site,1);
-        console.log(store.fetchList);
-        store.fetchListFilter=Array.from(store.fetchList);
-    }
 
+    componentWillMount() {
+        this.select_site('');
+    }
+    //选择站名
+    select_site=(type,key)=>{
+       let data={};
+       if(type=='site_id'){
+           data={
+               site_id:key
+           }
+       }else if(type=='site_name'){
+           data={
+               site_name:key
+           }
+       }
+        request({
+            url:'api/select_site',
+            method:'GET',
+            data,
+            success: ({
+                          data
+                      }) => {
+                console.log("选择站名",key,data);
+                store.fetchList=data;
+                this.getData(data[0],'1','1');
+                this.getData(data[0],'1','30','1');
+            }
+        })
+    };
+    //获取累加值
+    getData=(obj,page,size,OptionData)=>{
+        let Arr=[];
+        let data={};
+        Arr.push(obj);
+        console.log('传参',Arr,data,typeof Arr);
+        Arr.map((item)=>{
+            data.site_name=item.site_name;
+            data.site_id=item.site_id;
+            data.site_address=item.site_address;
+            data.tower_type=item.tower_type;
+            data.page=page;
+            data.size=size
+        });
+        console.log('传参',Arr,data);
+        request({
+            url: 'api/select_sensor_lj',
+            method:'GET',
+            data,
+            success: ({
+                          data
+                      }) => {
+                console.log('累加值',data);
+                if(OptionData=='1'){
+                    console.log('折线图数据',data);
+                    store.warn_x=data.map(item=>item.create_date);
+                    store.angle_add_x3=data.map(item=>item.angle_add_x3);
+                    store.angle_add_y3=data.map(item=>item.angle_add_y3);
+                    store.angle_big_x3=data.map(item=>item.angle_big_x3);
+                    store.angle_big_y3=data.map(item=>item.angle_big_y3);
+
+                    store.angle_add_x=store.angle_add_x3;
+                    store.angle_add_y=store.angle_add_y3;
+                    store.angle_big_x=store.angle_big_x3;
+                    store.angle_big_y=store.angle_big_y3;
+
+                    store.angle_add_x5=data.map(item=>item.angle_add_x5);
+                    store.angle_add_y5=data.map(item=>item.angle_add_y5);
+                    store.angle_big_x5=data.map(item=>item.angle_big_x5);
+                    store.angle_big_y5=data.map(item=>item.angle_big_y5);
+
+                    store.angle_add_x7=data.map(item=>item.angle_add_x7);
+                    store.angle_add_y7=data.map(item=>item.angle_add_y7);
+                    store.angle_big_x7=data.map(item=>item.angle_big_x7);
+                    store.angle_big_y7=data.map(item=>item.angle_big_y7);
+
+                    store.angle_add_x10=data.map(item=>item.angle_add_x10);
+                    store.angle_add_y10=data.map(item=>item.angle_add_y10);
+                    store.angle_big_x10=data.map(item=>item.angle_big_x10);
+                    store.angle_big_y10=data.map(item=>item.angle_big_y10);
+
+                    store.angle_add_x15=data.map(item=>item.angle_add_x15);
+                    store.angle_add_y15=data.map(item=>item.angle_add_y15);
+                    store.angle_big_x15=data.map(item=>item.angle_big_x15);
+                    store.angle_big_y15=data.map(item=>item.angle_big_y15);
+
+                    this.getOption2('X轴倾角累计图',store.warn_x,store.angle_add_x3);
+                    this.getOption2('X轴倾角累计图',store.warn_x,store.angle_add_y3);
+                    this.getOption2('X轴倾角累计图',store.warn_x,store.angle_big_x3);
+                    this.getOption2('X轴倾角累计图',store.warn_x,store.angle_big_y3);
+                    console.log('1111',store.warn_x,store.angle_add_x3);
+                    return;
+                }
+                store.warnCurrent=data;
+                this.getWarn(3);
+            }
+        })
+    };
+    //获取警报值
+    getWarn=(daynum)=>{
+        store.activeKey1=daynum;
+        request({
+            url:'api/select_lj_alert',
+            method:'GET',
+            data:{
+                daynum:daynum
+            },
+            success:({data})=>{
+                console.log('警报值',data);
+                store.warnValue=data;
+            }
+        })
+    };
+
+    //根据天数，改变折线图数据
     onChange1=(key)=>{
-        if(key==2){
-            store.day_number=5
-        }else if(key==3){
-            store.day_number=7
-        }else if(key==4){
-            store.day_number=10
-        }else{
-            store.day_number=15
+        if(key=='3'){
+            store.angle_add_x=store.angle_add_x3;
+            store.angle_add_y=store.angle_add_y3;
+            store.angle_big_x=store.angle_big_x3;
+            store.angle_big_y=store.angle_big_y3;
+        }else if(key=='5'){
+            store.angle_add_x=store.angle_add_x5;
+            store.angle_add_y=store.angle_add_y5;
+            store.angle_big_x=store.angle_big_x5;
+            store.angle_big_y=store.angle_big_y5;
+        }else if(key=='7'){
+            store.angle_add_x=store.angle_add_x7;
+            store.angle_add_y=store.angle_add_y7;
+            store.angle_big_x=store.angle_big_x7;
+            store.angle_big_y=store.angle_big_y7;
+        }else if(key=='10'){
+            store.angle_add_x=store.angle_add_x10;
+            store.angle_add_y=store.angle_add_y10;
+            store.angle_big_x=store.angle_big_x10;
+            store.angle_big_y=store.angle_big_y10;
+        }else if(key=='15'){
+            store.angle_add_x=store.angle_add_x15;
+            store.angle_add_y=store.angle_add_y15;
+            store.angle_big_x=store.angle_big_x15;
+            store.angle_big_y=store.angle_big_y15;
         }
-        store.activeKey1=key;
-        console.log('key',key,'store.activeKey1',store.activeKey1);
-        this.getWarnValue(store.day_number);
-        this.getCurrent(store.fetchList[0].imei,store.fetchList[0].site,store.activeKey1);
     };
     onChange2=(key)=>{
                 store.activeKey2=key;
-                console.log('key',key,'store.activeKey',store.activeKey2)
+                console.log('store.activeKey2',store.activeKey2)
     };
-    getCurrent=(index,site,key) => {
-        store.warnCurrent.currentImei2=store.fetchList[index].imei;
-        store.warnCurrent.currentSite2=site;
-        let time;
-        if(key==1){
-            time=store.warnParams.startTime=moment().subtract('days',2).format('YYYY-MM-DD')
-        }
-        if(key==2){
-            time=store.warnParams.startTime=moment().subtract('days',4).format('YYYY-MM-DD')
-        }else if(key==3){
-            time=store.warnParams.startTime=moment().subtract('days',6).format('YYYY-MM-DD')
-        }else if(key==4){
-            time=store.warnParams.startTime=moment().subtract('days',9).format('YYYY-MM-DD')
-        }else{
-            time=store.warnParams.startTime=moment().subtract('days',14).format('YYYY-MM-DD')
-        }
 
-        console.log('currentImei2','currentSite2',store.warnCurrent.currentImei2,store.warnCurrent.currentSite2);
-        request({
-            url: 'api/warning',
-            data: {
-                imei:store.warnCurrent.currentImei2,
-                startTime:time,
-                endTime:store.warnParams.endTime,
-                page: 1,
-                size: 10000
+    getOption2=(title,xAxis, series)=>{
+        return{
+            title: {
+                text: title
             },
-            success: ({
-                          data
-                      }) => {
-                console.log("api/warning_data",data);
-                console.log('startTime',store.warnParams.startTime,'endTime',store.warnParams.endTime);
-                    let xAdd=data.map(v=>v.x_add);
-                    let yAdd = data.map(v =>v.y_add);
-                    let xBig = data.map(v =>v.x_big);
-                    let yBig = data.map(v =>v.y_big);
-                    let time=data.map(v=>v.date);
-
-                store.x_add_arr=xAdd;
-                store.y_add_arr=yAdd;
-                store.x_big_arr=xBig;
-                store.y_big_arr=yBig;
-                store.warnCurrent.date_time2=time;
-                console.log(store.x_add_arr,store.y_add_arr,store.x_big_arr,store.y_big_arr,store.warnCurrent.date_time2);
-
-                    store.warnCurrent.x_add_all=this.sum(store.x_add_arr);
-                    store.warnCurrent.y_add_all=this.sum(store.y_add_arr);
-                    store.warnCurrent.x_big_all=this.sum(store.x_big_arr);
-                    store.warnCurrent.y_big_all=this.sum(store.y_big_arr);
-                    console.log('x_add_all',store.warnCurrent.x_add_all,'y_add_all',store.warnCurrent.x_add_all,'x_big_all',store.warnCurrent.x_big_all,'y_big_all',store.warnCurrent.y_big_all)
-            }
-        })
-    };
-    getWarnValue=(day_number) => {
-        request({
-            url: 'api/warn_angle',
-            data: {
-                day_number
+            tooltip: {
+                trigger: 'axis'
             },
-            success: ({
-                          data
-                      }) => {
-                console.log('warn_angle',data);
-                    store.warnValue.warn_addX=data[0].warn_addX;
-                    store.warnValue.warn_addY=data[0].warn_addY;
-                    store.warnValue.warn_bigX=data[0].warn_bigX;
-                    store.warnValue.warn_bigY=data[0].warn_bigY;
-                console.log('store.warnValue.warn_addX',data)
-            }
-        })
-    };
-    getOption1 = (x,y,warnValue) => {
-        let warnValue2=warnValue*1;
-        return {
-            title:{
-                text:'倾角值',
-                right:'3px',
-                top:'5%',
-                textStyle:{
-                    fontSize:'14px',
-                    fontWeight:'normal'
-                }
+            legend: {
+                data:store.echartsData
             },
             grid: {
                 left: '3%',
@@ -325,100 +392,38 @@ class Warn extends Component{
                 bottom: '3%',
                 containLabel: true
             },
-            tooltip: {
-                trigger: 'axis'
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
             },
-            xAxis: [{
+            xAxis: {
                 type: 'category',
-                data:x,
-                axisLabel:{
-                    interval: 0
-                }
-            }],
-            yAxis: [{
-                splitLine: {
-                    show: false
-                }
-            }],
-            dataZoom: [{
+                boundaryGap: false,
+                data: xAxis
+            },
+            yAxis: {
+                type: 'value'
+            },dataZoom: [{
                 show: true,
                 start: 10,
-                end: 100,
+                end: 90,
                 realtime: true
             }, {
                 type: 'slider'
             }],
             series: [{
-                name: '总倾角',
-                type: 'line',
-                color:'#5DADE2  ',
-                showSymbol: true,
-                data: y,
-                markLine : {
-                    symbol:"none",               //去掉警戒线最后面的箭头
-                    label:{
-                        formatter:'警报值',   //警戒线名称
-                        position:"start"
-                    },
-                    data : [{
-                        silent:false,             //鼠标悬停事件  true没有，false有
-                        lineStyle:{               //警戒线的样式  ，虚实  颜色
-                            type:"dashed",
-                            color:"#FA3934",
-                        },
-                        yAxis:warnValue2           // 警戒线的标注值，可以有多个yAxis,多条警示线
-                    }]
-                }
+                data: series,
+                type: 'line'
             }]
         }
     };
-    sum = (arr) => {
-        var s = 0;
-        for (var i=arr.length-1; i>=0; i--) {
-            s += arr[i];
-        }
-        return s;
-    };
+
     onSelect=(value)=> {
         console.log('onSelect', value);
-        this.handleSearch(value);
         store.search=[];
     };
-    onBlur=()=>{
 
-    };
-    handleSearch = (value) => {
-        request({
-            url: 'api/select_site',
-            data:{
-                keyword:value
-            },
-            success: ({
-                          data
-                      }) => {
-                console.log('api/select_site',data);
-
-                let siteValue = data.map(v => v.site);
-                store.siteValue = siteValue;
-                store.search= store.siteValue.filter(function (item) {
-                    //遍历数组，返回值为true保留并复制到新数组，false则过滤掉
-                    return item.includes(value);
-                });
-                store.fetchList=data;
-                /*store.fetchList=this.filter(store.fetchListFilter,value);
-                console.log('filter:store.fetchList',store.fetchList);*/
-            }
-        });
-    };
-    /*filter=(arr, value)=> {
-        let result = [];
-        arr.forEach(function (item, index) {
-            if (item.site.includes(value)) {
-                result.push(item);
-            }
-        });
-        return result;
-    };*/
     filter=(arr, value)=> {
         return arr.filter(v => Object.values(v).some(v => new RegExp(value + '').test(v))
         )

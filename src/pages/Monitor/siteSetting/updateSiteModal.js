@@ -8,7 +8,7 @@ import request from "../../../helpers/request";
 const FormItem=Form.Item;
 
 @observer
-class AddSiteModal extends Component{
+class UpdateSiteModal extends Component{
     render(){
         let { props } = this.props;
         let { visible } = props;
@@ -17,14 +17,14 @@ class AddSiteModal extends Component{
             <Fragment>
                 <Modal
                     title="站名设置"
-                    visible={visible}
-                    onOk={()=>{this.modalOk2()}}
-                    onCancel={()=> store.addSite_modal.visible=false}
+                    visible={store.siteSetting_modal.visible}
+                    onOk={this.modalOk}
+                    onCancel={()=> store.siteSetting_modal.visible=false}
                 >
                     <Form>
                         <FormItem label='站名' {...CommonFormConfig}>
                             {getFieldDecorator('site_name',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.site_name,
                                 rules:[
                                     {required: true,message:'请输入站点名'}
                                 ]
@@ -34,7 +34,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='站点地址' {...CommonFormConfig}>
                             {getFieldDecorator('site_address',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.site_address,
                                 rules:[
                                     {required: true,message:'请输入站点地址'}
                                 ]
@@ -44,7 +44,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='站点编码' {...CommonFormConfig}>
                             {getFieldDecorator('site_id',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.site_id,
                                 rules:[
                                     {required: true,message:'请输入站点编码'}
                                 ]
@@ -54,7 +54,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='铁塔类型' {...CommonFormConfig}>
                             {getFieldDecorator('tower_type',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.tower_type,
                                 rules:[
                                     {required: false,message:'请输入铁塔类型'}
                                 ]
@@ -64,7 +64,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='站点经度' {...CommonFormConfig}>
                             {getFieldDecorator('site_longitude',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.site_longitude,
                                 rules:[
                                     {required: false,message:'请输入站点经度'}
                                 ]
@@ -74,7 +74,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='站点纬度' {...CommonFormConfig}>
                             {getFieldDecorator('site_latitude',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.site_latitude,
                                 rules:[
                                     {required: false,message:'请输入站点纬度'}
                                 ]
@@ -84,7 +84,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='铁塔高度' {...CommonFormConfig}>
                             {getFieldDecorator('tower_hight',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.tower_hight,
                                 rules:[
                                     {required: false,message:'请输入铁塔高度'}
                                 ]
@@ -94,7 +94,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='警报距离' {...CommonFormConfig}>
                             {getFieldDecorator('alert_distance',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.alert_distance,
                                 rules:[
                                     {required: false,message:'请输入警报距离'}
                                 ]
@@ -104,7 +104,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='警报电话' {...CommonFormConfig}>
                             {getFieldDecorator('alert_phone',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.alert_phone,
                                 rules:[
                                     {required: false,message:'请输入警报电话'}
                                 ]
@@ -114,7 +114,7 @@ class AddSiteModal extends Component{
                         </FormItem>
                         <FormItem label='代维公司' {...CommonFormConfig}>
                             {getFieldDecorator('maintain_company',{
-                                initialValue:'',
+                                initialValue:store.siteSetting_modal.data.maintain_company,
                                 rules:[
                                     {required: false,message:'请输入代维公司'}
                                 ]
@@ -127,25 +127,23 @@ class AddSiteModal extends Component{
             </Fragment>
         );
     }
-    singleAdd=(values)=>{
+    modalOk=()=>{
+        let { getFieldsValue } = this.props.form;
+        let values = getFieldsValue();
+        console.log('getFieldsValue',values);
+        store.siteSetting_modal.visible=false;
         request({
-            url: 'api/add_site',
-            data: values,
+            url: 'api/update_site',
+            data:values,
             success: (res) => {
                 console.log('传过去的values',values,res)
             },
             complete: () => {
                 //这里应该从新请求更新页面
+               /* this.getData();*/
             }
         })
-    };
-    modalOk2=()=>{
-        let { getFieldsValue } = this.props.form;
-        let values = getFieldsValue();
-        console.log('getFieldsValue',values);
-        store.addSite_modal.visible=false;
-        this.singleAdd(values);
+
     };
 }
-
-export default Form.create()(AddSiteModal);
+export default Form.create()(UpdateSiteModal);

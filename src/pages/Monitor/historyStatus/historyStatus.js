@@ -20,10 +20,6 @@ const { RangePicker} = DatePicker;
 const alarm_type = ['正常', '报警'];
 
 
-
-/*const url = 'getHistoryDataByInterval.shtml?equipmentId=868744034584411&startTime=2018-07-01&endTime=2018-09-05'*/
-
-/*messageType*/
 const columns = [
   {
     title:'日期',
@@ -104,24 +100,23 @@ class HistoryStatus extends Component{
             <Breadcrumb.Item>历史工作情况</Breadcrumb.Item>
           </Breadcrumb>
           <Card>
-            <div style={{marginBottom:10}} >选择日期：<RangePicker /></div>
+            <div style={{marginBottom:10}} >
+              选择日期：<RangePicker
+                placeholder={[startTime, endTime]}
+                onChange={this.DateChange}
+            />
+            </div>
 
-            <Table columns={columns} dataSource={history_data} pagination={false} rowKey={record=>record.angle_y+record.angle_x}  onRow={(record,index) => {
+            <Table
+                columns={columns}
+                dataSource={history_data}
+                pagination={false}
+                rowKey={(record,index)=>index}
+                onRow={(record,index) => {
               return {
                 onClick: () => {
-                  console.log(record.angle_x,index);
-                  store.details= {
-                    create_time:record.create_time,
-                    deviceState:record.deviceState,
-                    angle:record.angle,
-                    angle_x:record.angle_x,
-                    angle_y:record.angle_y,
-                    height:record.height,
-                    angle_range:record.angle_range,
-                    variance:record.variance,
-                    deviceVoltage:record.deviceVoltage,
-                    deviceTemperature:record.deviceTemperature
-                  };
+                  console.log('record',record);
+                  store.details= record;
                   console.log(store.details)
                 }
               };
@@ -129,7 +124,7 @@ class HistoryStatus extends Component{
             />
             <Pagination
                 style={{margin:'100px 20% 20px'}}
-                total={90} showTotal={total => `总共 ${total} 条`}
+                total={store.total_num} showTotal={total => `总共 ${total} 条`}
                 showSizeChanger showQuickJumper
                 size='small'
                 onChange={this.onPageChange}/>
@@ -140,52 +135,57 @@ class HistoryStatus extends Component{
     )
   }
   getDevicesList = () => {
-    request({
-      url: 'api/show_sensor_list',
-      success: ({
-                  data
-                }) => {
-
-        let imei = data[0].imei;
-        this.getDataList(imei);
-        console.log("imei获取成功",imei);
-        store.currentImei=imei;
-      }
-    })
-  };
-
-  getDataList = (imei) => {
-    store.currentImei=imei;
-    request({
-      url: 'api/show_data_list',
-      data: {
-        imei,
-        startTime,
-        endTime,
-        page:this.state.pages,
-        size: 31
+    /*request({
+      url:'api/show_data_list',
+      method:'GET',
+      data:{
+        machine_site_id:store.machine_site_id,
       },
       success: ({
                   data
                 }) => {
-        console.log("data成功",data);
-        store.history_data = data;
+        console.log('历史数据',store.machine_site_id,data);
+        store.total_num=data.length+1;
+      }
+    })*/
+    store.total_num=100;
+  };
 
+  getDataList = () => {
+    request({
+      url: 'api/show_data_list',
+      method:'GET',
+      data: {
+        machine_site_id:store.machine_site_id,
+        startTime,
+        endTime,
+        page:this.state.pages,
+        size: 10
+      },
+      success: ({
+                  data
+                }) => {
+        console.log("分页数据",data);
+        store.history_data = data;
       }
     })
   };
   onPageChange = (page,pagination) => {
-    console.log("页数获取成功",page);
-    console.log('params', pagination);
+    console.log("页数获取成功",page,pagination);
     this.setState({
       pages: page,
-    },()=>{console.log("page更新成功",this.state.pages)});
-    this.getDevicesList();
+    },()=>{
+      console.log("page改变",this.state.pages)});
+    this.getDataList();
   };
-  /*function onChange(pagination, filters, sorter)  {
-    console.log('params', pagination, filters, sorter);
-  }*/
+  DateChange=(value, dateString)=>{
+    startTime=dateString[0];
+    endTime=dateString[1];
+    this.getDataList();
+    console.log('日期改变',value, dateString)
+  };
   componentWillMount(){
+    this.getDataList();
     this.getDevicesList();
     console.log("组件更新了")
   }

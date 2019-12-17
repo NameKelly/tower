@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import { Card,Tabs, Breadcrumb,LocaleProvider  } from 'antd';
+import { Card,Tabs, Breadcrumb,LocaleProvider,Row,Col  } from 'antd';
 import moment from 'moment';
 import style from './detail.css';
 import Charts from 'ant-design-pro/lib/Charts';
@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import {observer} from "mobx-react";
 import request from "../../../../helpers/request";
 import store from "../../store";
+import ReactEcharts from 'echarts-for-react';
 
 const { TimelineChart } = Charts;
 const TabPane = Tabs.TabPane;
@@ -23,72 +24,198 @@ export default class Detail extends Component {
     super(props);
   }
 
-  componentDidMount(){
-    let currentUrl=window.location.href+toString();
+  componentWillMount(){
+   /* let currentUrl=window.location.href+toString();
     let arrayUrl=currentUrl.split('/');
-    let currentImei=arrayUrl[arrayUrl.length-1]
-
-    console.log('currentImei',currentImei);
-    /*this.getDataList(currentImei)*/
+    let currentImei=arrayUrl[arrayUrl.length-1];*/
+   this.getData();
   }
-  /*getDataList=(imei)=>{
+
+  componentDidMount() {
+      this.getOption2('倾角图',store.details_series)
+      this.getOption2('工作温度图',store.details_series3)
+  }
+
+    getData=()=>{
       request({
           url:'api/show_data_list',
+          method:'GET',
           data:{
-              imei,//参数未完整
+              machine_site_id:store.details.machine_site_id
           },
-          success:({
-              data
-          })=>{
-              console.log('alldata',data)
+          success:({data})=>{
+              console.log(store.details.machine_site_id,data)
+              let showData=data.slice(0,30);
+              let arr=this.filterData(showData,'machine_site_id','sensorID');
+              this.getAngle(arr);
+              this.getTemperature(arr);
+              /*this.getVoltage(arr);*/
+
           }
       })
-  };*/
+  };
+    //重组数组，筛选数据
+    filterData=(arr,key,key2)=>{
+        let map = {},
+            dest = [];
+        for(let i = 0; i < arr.length; i++){
+            let ai = arr[i];
+            if(!map[ai[key]]){
+                dest.push({
+                    [key]: ai[key],
+                    [key2]:ai[key2],
+                    data: [ai]
+                });
+                map[ai[key]] = ai;
+            }else{
+                for(let j = 0; j < dest.length; j++){
+                    let dj = dest[j];
+                    if(dj[key] == ai[key]){
+                        dj.data.push(ai);
+                        break;
+                    }
+                }
+            }
+        }
+        console.log('重组数组',dest);
+        return dest;
+        /*this.getAngle(dest);*/
+    };
+//获取倾角图数据
+    getAngle=(arr)=>{
+        console.log('getAngle');
+        let filterArr=[];
+        arr.map((item)=>{
+            filterArr.push({
+                name:item.sensorID,
+                type:'line',
+                stack: '总量',
+                data:item.data.map(item=>item.angle)
+            })
+        });
+        store.details_series=filterArr
+        store.details_echartsData=arr.map(item=>item.sensorID);
+        store.details_echartsXData=arr[0].data.map(item=>item.create_time)
+        console.log('store.details_series',store.details_series,filterArr)
+    };
+    //获取温度图数据
+    getTemperature=(arr)=>{
+        let filterArr=[];
+        arr.map((item)=>{
+            filterArr.push({
+                name:item.sensorID,
+                type:'line',
+                stack: '总量',
+                data:item.data.map(item=>item.deviceTemperature)
+            })
+        });
+        store.details_series3=filterArr;
+        store.details_echartsData=arr.map(item=>item.sensorID);
+        store.details_echartsXData=arr[0].data.map(item=>item.create_time)
+        console.log('store.details_series3',store.details_series3,filterArr)
+    };
+    //获取电池电压图
+    getVoltage=(arr)=>{
+        let filterArr=[];
+        arr.map((item)=>{
+            filterArr.push({
+                name:item.sensorID,
+                type:'line',
+                stack: '总量',
+                data:[]
+                /*data:item.data.map(item=>item.Voltage)*/
+            })
+        });
+        store.details_series2=filterArr;
+        store.details_echartsData=arr.map(item=>item.sensorID);
+        store.details_echartsXData=arr[0].data.map(item=>item.create_time)
+    };
+    getOption2;
+    //
   render(){
+      this.getOption2=(title, series)=>{
+          return{
+              title: {
+                  text: title
+              },
+              tooltip: {
+                  trigger: 'axis'
+              },
+              legend: {
+                  data:store.echartsData
+              },
+              grid: {
+                  left: '3%',
+                  right: '4%',
+                  bottom: '3%',
+                  containLabel: true
+              },
+              toolbox: {
+                  feature: {
+                      saveAsImage: {}
+                  }
+              },
+              xAxis: {
+                  type: 'category',
+                  boundaryGap: false,
+                  data: store.echartsXData
+              },
+              yAxis: {
+                  type: 'value'
+              },
+              dataZoom: [{
+                  show: true,
+                  start: 10,
+                  end: 90,
+                  realtime: true
+              }, {
+                  type: 'slider'
+              }],
+              series: series
+          }
+      };
     return(
         <Fragment>
           <Breadcrumb>
-            <Link to='./monitor'><Breadcrumb.Item>监控页</Breadcrumb.Item></Link>
-            <Link to='/historyStatus/'><Breadcrumb.Item>历史工作情况</Breadcrumb.Item></Link>
+              <Breadcrumb.Item><Link to='./monitor'>监控页</Link></Breadcrumb.Item>
+              <Breadcrumb.Item><Link to='/historyStatus/'>历史工作情况</Link></Breadcrumb.Item>
             <Breadcrumb.Item>详情</Breadcrumb.Item>
           </Breadcrumb>
           <Card style={{marginBottom:15}}>
             <div>
               <h2>日期：{store.details.create_time}</h2>
-              <div style={{ marginTop: 15 }}>
-                <span className={style.contentBody}>状态：<span className={style.content}>{store.details.state}</span></span>
-                <span className={style.contentBody}>倾角：<span className={style.content}>{store.details.angle}</span></span>
-                <span className={style.contentBody}>X轴倾角：<span className={style.content}>{store.details.angle_x}</span></span>
-                <span className={style.contentBody}>Y轴倾角：<span className={style.content}>{store.details.angle_y}</span></span>
-                <span className={style.contentBody}>高度：<span className={style.content}>{store.details.height}</span></span>
-                <span className={style.contentBody}>偏移距离：<span className={style.content}>{store.details.angle_range}</span></span>
-                <span className={style.contentBody}>方差：<span className={style.content}>{store.details.variance}</span></span>
-                <span className={style.contentBody}>平均电池电压：<span className={style.content}>{store.details.deviceVoltage}</span></span>
-                <span className={style.contentBody}>平均工作温度：<span className={style.content}>{store.details.deviceTemperature}</span></span>
-              </div>
+              <Row style={{ marginTop: 15 }}>
+                <Col span={4}>状态：{store.details.state}</Col>
+                <Col span={4}>倾角：{store.details.angle}</Col>
+                <Col span={4}>X轴倾角：{store.details.angle_x}</Col>
+                <Col span={4}>Y轴倾角：{store.details.angle_y}</Col>
+                <Col span={4}>高度：{store.details.height}</Col>
+                <Col span={4}>偏移距离：{store.details.angle_range}</Col>
+                <Col span={4}>方差：{store.details.variance}</Col>
+                <Col span={4}>平均电池电压：{store.details.deviceVoltage}</Col>
+                <Col span={4}>平均工作温度：{store.details.deviceTemperature}</Col>
+              </Row>
             </div>
           </Card>
           <Card>
             <Tabs size='large'>
               <TabPane tab="倾角图" key="1">
-                <div style={{ padding: '0 24px', marginTop: -30 }}>
-                  {/*<TimelineChart
+                <div style={{ padding: '0 24px', marginTop: 10 }}>
+                    <ReactEcharts option={this.getOption2('倾角图',store.details_series)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                 {/* <TimelineChart
                   height={300}
                   data={chartData}
                   titleMap={{ y1: '客流量', y2: '支付笔数' }}
                 />*/}
                 </div>
               </TabPane>
-              <TabPane tab="电池电压图" key="2">
-                <div style={{ padding: '0 24px', marginTop: -30 }}>
-                  {/*<TimelineChart
-                  height={300}
-                  data={chartData}
-                  titleMap={{ y1: '客流量', y2: '支付笔数' }}
-                />*/}
-                </div></TabPane>
+              {/*<TabPane tab="电池电压图" key="2">
+                <div style={{ padding: '0 24px', marginTop: 10 }}>
+
+                </div></TabPane>*/}
               <TabPane tab="工作温度图" key="3">
-                <div style={{ padding: '0 24px', marginTop: -30 }}>
+                <div style={{ padding: '0 24px', marginTop: 10 }}>
+                    <ReactEcharts option={this.getOption2('工作温度图',store.details_series3)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                   {/* <TimelineChart
                     height={300}
                     data={chartData}

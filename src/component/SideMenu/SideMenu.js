@@ -40,26 +40,29 @@ export default class SiderMenu extends React.Component {
                             </span>
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="3">
+                    <Menu.Item key="3" style={{display:'none'}}>
                         <Link to='/gps'>
                             <Icon type="global" />
                             <span>GPS</span>
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="4">
+                    <Menu.Item key="4" style={{display:'none'}}>
                         <Link to='/error'>
                             <Icon type="info-circle" theme="outlined" />
                             <span>故障记录</span>
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="5">
-                        <Link to='/registrationStatus'>
-                            <Icon type="border" />
-                            <span>
+                    {
+                        sessionStorage.getItem('user')=='admin'?
+                            <Menu.Item key="5">
+                            <Link to='/registrationStatus'>
+                                <Icon type="border" />
+                                <span>
                             注册状态
                             </span>
-                        </Link>
-                    </Menu.Item>
+                            </Link>
+                        </Menu.Item>:''
+                    }
                     <Menu.Item key="6">
                         <Link to='/review'>
                             <Icon type="user" />

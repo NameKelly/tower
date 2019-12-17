@@ -9,15 +9,6 @@ import Revise from './Revise/revise';
 
 const Search = Input.Search;
 const Option = Select.Option;
-const selectBefore = (
-    <Select defaultValue="IMEI" style={{ width: 90 }}>
-        <Option value="IMEI" key='imei'>IMEI</Option>
-        <Option value="IMSI" key='imsi'>IMSI</Option>
-        <Option value="sensorID" key='id'>sensorID</Option>
-        <Option value="站名" key='site'>站名</Option>
-        <Option value="地址" key='addr'>地址</Option>
-    </Select>
-);
 const columns = [
     {
         title:'IMEI',
@@ -34,15 +25,18 @@ const columns = [
     },
     {
         title:'高度',
-        dataIndex:'install_height',
+        dataIndex:'tower_hight',
     },
     {
         title: '站名',
-        dataIndex: 'site',
+        dataIndex: 'site_name',
+    },{
+        title: '代维公司',
+        dataIndex: 'maintain_company',
     },
     {
         title:'地址',
-        dataIndex:'addr',
+        dataIndex:'site_address',
     },
     {
         title:'操作',
@@ -57,7 +51,19 @@ const columns = [
 
 @observer
 export default class Review extends Component{
+   state={
+       selectValue:'imei'
+        };
     render(){
+        const selectBefore = (
+            <Select defaultValue="IMEI" style={{ width: 90 }} onChange={this.selectChange}>
+                <Option value="imei" key='imei'>IMEI</Option>
+                <Option value="imsi" key='imsi'>IMSI</Option>
+                <Option value="site_name" key='site'>站名</Option>
+                <Option value="site_address" key='addr'>地址</Option>
+                <Option value="maintain_company	" key='maintain_company'>代维公司</Option>
+            </Select>
+        );
         return(
             <Fragment>
                 <Breadcrumb>
@@ -68,7 +74,7 @@ export default class Review extends Component{
                         <Search
                             addonBefore={selectBefore}
                             placeholder="请输入搜索内容"
-                            onSearch={value => console.log(value)}
+                            onSearch={(value,event) => this.onSearch(value,event)}
                             enterButton
                             style={{ width: '30%',marginBottom:'10px'}}
                         />
@@ -77,19 +83,12 @@ export default class Review extends Component{
                         columns={columns}
                         dataSource={store.review_data}
                         pagination={true}
-                        size="small"
+                        size={'small'}
                         rowKey={record => record.imsi}
                         onRow={(record,index) => {
                             return {
                                 onClick: () => {
-                                    store.reviewChange= {
-                                        imei:record.imei,
-                                        imsi:record.imsi,
-                                        sensorID:record.sensorID,
-                                        install_height:record.install_height,
-                                        site:record.site,
-                                        addr:record.addr
-                                    };
+                                    store.reviseMsg=record;
                                     store.revise_modal.visible=true;
                                 }
                             };
@@ -109,12 +108,28 @@ export default class Review extends Component{
             </Fragment>
         );
     }
-    /*onPageChange=()=>{
-        console.log('onPageChange');
-    };*/
-    componentWillMount(){
+    onSearch=(value)=>{
+        let key=this.state.selectValue;
+        let data={};
+        data[key]=value;
+        console.log('onSearch',value,data);
+        this.getData(data);
+    };
+    selectChange=(value)=>{
+        this.setState({
+            selectValue:value
+        });
+        console.log('selectChange',value);
+    };
+    getData=(key)=>{
+        let data={};
+        if(key){
+            data=key
+        }
         request({
-            url: 'api/select_install_data',
+            url: 'api/select_tower',
+            method:'GET',
+            data,
             success: (res) => {
                 store.review_data=res.data;
                 console.log('res',res);
@@ -123,5 +138,8 @@ export default class Review extends Component{
 
             }
         })
+    };
+    componentWillMount(){
+        this.getData();
     }
 }
