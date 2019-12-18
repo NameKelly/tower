@@ -9,6 +9,9 @@ import request from "../../../../helpers/request";
 import store from "../../store";
 import ReactEcharts from 'echarts-for-react';
 
+var startTime2=moment(new Date()).subtract(30,'days').format('YYYY-MM-DD');
+var endTime2 = moment(new Date()).format('YYYY-MM-DD');
+
 const { TimelineChart } = Charts;
 const TabPane = Tabs.TabPane;
 const chartData = [];
@@ -25,13 +28,11 @@ export default class Detail extends Component {
   }
 
   componentWillMount(){
-   /* let currentUrl=window.location.href+toString();
-    let arrayUrl=currentUrl.split('/');
-    let currentImei=arrayUrl[arrayUrl.length-1];*/
    this.getData();
   }
 
   componentDidMount() {
+      //this.getData();
       this.getOption2('倾角图',store.details_series)
       this.getOption2('工作温度图',store.details_series3)
   }
@@ -41,12 +42,14 @@ export default class Detail extends Component {
           url:'api/show_data_list',
           method:'GET',
           data:{
-              machine_site_id:store.details.machine_site_id
+              machine_site_id:store.details.machine_site_id,
+              startTime:startTime2,
+              endTime:endTime2,
           },
           success:({data})=>{
-              console.log(store.details.machine_site_id,data)
+              console.log(store.details.machine_site_id,data);
               let showData=data.slice(0,30);
-              let arr=this.filterData(showData,'machine_site_id','sensorID');
+              let arr=this.filterData(data,'machine_site_id','sensorID');
               this.getAngle(arr);
               this.getTemperature(arr);
               /*this.getVoltage(arr);*/
@@ -93,7 +96,10 @@ export default class Detail extends Component {
                 data:item.data.map(item=>item.angle)
             })
         });
-        store.details_series=filterArr
+        store.details_series=filterArr;
+        this.setState({
+            series:filterArr
+        });
         store.details_echartsData=arr.map(item=>item.sensorID);
         store.details_echartsXData=arr[0].data.map(item=>item.create_time)
         console.log('store.details_series',store.details_series,filterArr)
@@ -110,9 +116,12 @@ export default class Detail extends Component {
             })
         });
         store.details_series3=filterArr;
+        this.setState({
+            series3:filterArr
+        });
         store.details_echartsData=arr.map(item=>item.sensorID);
-        store.details_echartsXData=arr[0].data.map(item=>item.create_time)
-        console.log('store.details_series3',store.details_series3,filterArr)
+        store.details_echartsXData=arr[0].data.map(item=>item.create_time);
+        console.log('store.details_series3',typeof store.details_series3,filterArr,this.state.series3)
     };
     //获取电池电压图
     getVoltage=(arr)=>{
@@ -130,50 +139,53 @@ export default class Detail extends Component {
         store.details_echartsData=arr.map(item=>item.sensorID);
         store.details_echartsXData=arr[0].data.map(item=>item.create_time)
     };
-    getOption2;
+    getOption2=(title, series)=>{
+        return{
+            title: {
+                text: title
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data:store.echartsData
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: store.echartsXData
+            },
+            yAxis: {
+                type: 'value'
+            },
+            dataZoom: [{
+                show: true,
+                start: 10,
+                end: 20,
+                realtime: true
+            }, {
+                type: 'slider'
+            }],
+            series: series
+        }
+    };
+    state={
+        series:[],
+        series3:[]
+    };
     //
   render(){
-      this.getOption2=(title, series)=>{
-          return{
-              title: {
-                  text: title
-              },
-              tooltip: {
-                  trigger: 'axis'
-              },
-              legend: {
-                  data:store.echartsData
-              },
-              grid: {
-                  left: '3%',
-                  right: '4%',
-                  bottom: '3%',
-                  containLabel: true
-              },
-              toolbox: {
-                  feature: {
-                      saveAsImage: {}
-                  }
-              },
-              xAxis: {
-                  type: 'category',
-                  boundaryGap: false,
-                  data: store.echartsXData
-              },
-              yAxis: {
-                  type: 'value'
-              },
-              dataZoom: [{
-                  show: true,
-                  start: 10,
-                  end: 90,
-                  realtime: true
-              }, {
-                  type: 'slider'
-              }],
-              series: series
-          }
-      };
     return(
         <Fragment>
           <Breadcrumb>

@@ -14,8 +14,9 @@ export default class AddSite extends Component{
         this.setState({
             fileName:file.name
         });
-        console.log('action, file',file);
-        let _this=this;
+        let formData = new FormData();
+        formData.append('photo', file);
+        console.log('formData',formData);
         request({
             url: action,
             data: {
@@ -35,7 +36,6 @@ export default class AddSite extends Component{
     render(){
         let uploadOptions = {
             name: 'file',
-            /*action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',*/
             action:'api/upload_excel',
             withCredentials: true,
             customRequest: this.handleUpload,

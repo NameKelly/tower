@@ -12,6 +12,8 @@ var startTime = moment(now).format('YYYY-MM-DD');
 now.setMonth(now.getMonth() + 1);
 now.setDate(now.getDate() - 1);
 var endTime = moment(now).format('YYYY-MM-DD');
+var startTime2=moment(new Date()).subtract(30,'days').format('YYYY-MM-DD');
+var endTime2 = moment(new Date()).format('YYYY-MM-DD');
 
 const state_type = ['', '正常', '停用'];
 const ini_state = ['', '成功', '待处理'];
@@ -157,8 +159,8 @@ class HistoryStatus extends Component{
       method:'GET',
       data: {
         machine_site_id:store.machine_site_id,
-        startTime,
-        endTime,
+        startTime:startTime2,
+        endTime:endTime2,
         page:this.state.pages,
         size: 10
       },

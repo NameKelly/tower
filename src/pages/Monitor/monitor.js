@@ -35,7 +35,9 @@ var startTime = moment(now).format('YYYY-MM-DD');
 now.setMonth(now.getMonth() + 1);
 now.setDate(now.getDate() - 1);
 var endTime = moment(now).format('YYYY-MM-DD');
-console.log('startTime,endTime',endTime,startTime);
+var startTime2=moment(new Date()).subtract(30,'days').format('YYYY-MM-DD');
+var endTime2 = moment(new Date()).format('YYYY-MM-DD');
+console.log('startTime,endTime',endTime,startTime,endTime2,startTime2);
 
 const state_type = ['', '正常', '停用'];
 const ini_state = ['', '成功', '待处理'];
@@ -60,7 +62,7 @@ class Monitor extends React.Component {
     key:'1',
     className: style.siteBox,
     render: (text, record,index) => {
-      return <a onClick={(e) => { e.preventDefault(); this.select_site(record.site_id)}}>{text}</a>
+      return <a onClick={(e) => { e.preventDefault(); this.select_site2(record)}}>{text}</a>
     }
   }];
   sensorIDColumns=[ {
@@ -164,7 +166,7 @@ class Monitor extends React.Component {
         },dataZoom: [{
           show: true,
           start: 10,
-          end: 90,
+          end: 15,
           realtime: true
         }, {
           type: 'slider'
@@ -341,12 +343,14 @@ class Monitor extends React.Component {
     }
   };
   //传感器信息
-  select_tower=(site_id)=>{
+  select_tower=(site_id,lineData)=>{
     request({
       url: 'api/select_tower',
       method:'GET',
       data:{
-        site_id:site_id
+        site_id:site_id,
+        page:'1',
+        size:'30'
       },
       success: ({
                   data
@@ -356,7 +360,7 @@ class Monitor extends React.Component {
         let dataSource=store.sensorID_data.concat(data);
         store.sensorID_data =dataSource;
         console.log('sensorID_data',dataSource,store.sensorID_data);
-        this.getDeviceData(store.sensorID_data[1].sensorID);//初始传感器历史数据
+        this.getDeviceData('sensorID',store.sensorID_data[1].sensorID);//初始传感器历史数据
      }
     });
   };
@@ -401,9 +405,34 @@ class Monitor extends React.Component {
         store.fetchList = data;//站名列表
         store.site_id=data[0].site_id;
         store.basicMsg = data[0];//站点基本信息
-        this.select_tower(store.site_id);//传感器信息(sensorID)
+        this.select_tower(store.site_id,'1');//传感器信息(sensorID)
         console.log('show_sensor_list',data);
         //this.getDeviceData('site_id',data[0].site_id);//传感器历史数据
+        console.log('获取倾角图数据');
+        this.firstLine(store.site_id);
+      }
+    })
+  };
+
+  //获取折线图初始
+  firstLine=(site_id)=>{
+    request({
+      url:'api/show_data_list',
+      method:'GET',
+      data: {
+        site_id,
+        startTime:startTime2,
+        endTime:endTime2,
+      },
+      success: ({
+                  data
+                }) => {
+
+        console.log('获取倾角图数据');
+        let arr=this.filterData(data,'machine_site_id','sensorID');
+        console.log('arr',arr);
+        this.getAngle(arr);
+        this.getTemperature(arr);
       }
     })
   };
@@ -412,25 +441,49 @@ class Monitor extends React.Component {
     let data={};
     if(type=='site_id'){
       data={
-        site_id:key
+        site_id:key,
+        startTime:startTime2,
+        endTime:endTime2,
+        page:'1',
+        size:'30'
       }
     }else if(type=='machine_site_id'){
       data={
-        machine_site_id:key
+        machine_site_id:key,
+        startTime:startTime2,
+        endTime:endTime2,
+        page:'1',
+        size:'30'
       }
-    }else if(type=='rowChoose'){
+    }else if(type=='sensorID'){
+      data={
+        sensorID:key,
+        startTime:startTime2,
+        endTime:endTime2,
+        page:'1',
+        size:'30'
+      }
+    }
+    else if(type=='rowChoose'){
       if(key=='全部'){
         data={
-          site_id:store.site_id
+          site_id:store.site_id,
+          startTime:startTime2,
+          endTime:endTime2,
+          page:'1',
+          size:'30'
         }
       }else{
         data={
-          sensorID:key
+          sensorID:key,
+          startTime:startTime2,
+          endTime:endTime2,
+          page:'1',
+          size:'30'
         }
       }
     }
       request({
-        /*url: 'api/show_adjust_angle',*/
         url:'api/show_data_list',
         method:'GET',
         data: data,
@@ -447,9 +500,14 @@ class Monitor extends React.Component {
             store.months_data = [];
             store.machine_site_id='';
           }
-        let arr=this.filterData(store.months_data,'machine_site_id','sensorID');
-          this.getAngle(arr);
-          this.getTemperature(arr);
+        //let arr=this.filterData(store.months_data,'machine_site_id','sensorID');
+        //   if(type=='site_id' || type=='rowChoose'){
+        //     console.log('获取倾角图数据');
+        //     let arr=this.filterData(data,'machine_site_id','sensorID');
+        //     this.getAngle(arr);
+        //     this.getTemperature(arr);
+        //   }
+
         }
       })
   };
@@ -467,11 +525,18 @@ class Monitor extends React.Component {
         console.log("选择站名",key,data);
         store.site_id=data[0].site_id;
         store.basicMsg = data[0];
-        this.getDeviceData('site_id',data[0].site_id);
+        this.getDeviceData('site_id',data[0].site_id);//初始数据
         this.select_tower(store.site_id);
       }
     })
 };
+  select_site2=(record)=>{
+    console.log('选择站名','record',record,record.site_name);
+    store.site_id=record.site_id;
+    store.basicMsg = record;
+    this.firstLine(store.site_id);
+    this.select_tower(store.site_id);
+  };
 //重组数组，筛选数据
   filterData=(arr,key,key2)=>{
     let map = {},
@@ -560,8 +625,8 @@ class Monitor extends React.Component {
        }],
        dataZoom: [{
          show: true,
-         start: 1,
-         end: 100,
+         start: 10,
+         end: 20,
          realtime: true
        }, {
          type: 'slider'
@@ -623,8 +688,8 @@ class Monitor extends React.Component {
       }],
       dataZoom: [{
         show: true,
-        start: 90,
-        end: 100,
+        start: 10,
+        end: 20,
         realtime: true
       }, {
         type: 'slider'
