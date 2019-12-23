@@ -9,6 +9,10 @@ const FormItem=Form.Item;
 
 @observer
 class AddSiteModal extends Component{
+    constructor(props){
+        super(props);
+        console.log(this.props,'0000000000000000')
+    }
     render(){
         let { props } = this.props;
         let { visible } = props;
@@ -136,6 +140,7 @@ class AddSiteModal extends Component{
             },
             complete: () => {
                 //这里应该从新请求更新页面
+                this.gotoFather();
             }
         })
     };
@@ -145,6 +150,12 @@ class AddSiteModal extends Component{
         console.log('getFieldsValue',values);
         store.addSite_modal.visible=false;
         this.singleAdd(values);
+    };
+
+    gotoFather=()=>{
+        console.log('gotoFather');
+        console.log(this.props);
+        this.props.getData(this.props.info);
     };
 }
 

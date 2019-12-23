@@ -120,7 +120,7 @@ class SiteSetting extends Component{
             <Card
                 title='站点设置'
                 extra={<span>
-                    <Button type='primary' style={{marginRight:'10px'}} onClick={(e)=>this.upLoadFile(e)}>批量添加</Button>
+                    <Link to='/addSite'><Button type='primary' style={{marginRight:'10px'}}>批量添加</Button></Link>
                     <Button type='primary' onClick={()=>store.addSite_modal.visible=true}>添加</Button>
                 </span>}
             >
@@ -142,8 +142,8 @@ class SiteSetting extends Component{
                     scroll={{ x: 1500 }}
                     rowKey={(record,index) =>index}
                 />
-               <UpdateSiteModal props={store.siteSetting_modal}/>
-                <AddSiteModal props={store.addSite_modal}/>
+               <UpdateSiteModal props={store.siteSetting_modal} getData={this.getData} info={this.state.getData}/>
+                <AddSiteModal props={store.addSite_modal} getData={this.getData} info={this.state.getData}/>
             </Card>
         );
     }

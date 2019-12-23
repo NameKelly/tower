@@ -58,7 +58,7 @@ export default class SiderMenu extends React.Component {
                             <Link to='/registrationStatus'>
                                 <Icon type="border" />
                                 <span>
-                            注册状态
+                            传感器管理
                             </span>
                             </Link>
                         </Menu.Item>:''
@@ -70,7 +70,7 @@ export default class SiderMenu extends React.Component {
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="7">
-                        <Link to='/addSite'>
+                        <Link to='/siteSetting'>
                             <Icon type="desktop" />
                             <span>站名设置</span>
                         </Link>

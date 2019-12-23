@@ -372,6 +372,7 @@ class Monitor extends React.Component {
   };
   onSelect=(value)=> {
     console.log('onSelect', value);
+    this.getDevicesList(value);
     store.search=[]
   };
 

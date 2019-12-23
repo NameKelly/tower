@@ -18,9 +18,10 @@ const bundler = new Bundler(file, options);
 
 app.use('/api/*', proxy({
   //target: 'http://112.33.28.5:8886',
-    target:'http://112.33.57.75:2323',
+    //target:'http://112.33.57.75:2323',
+  target:'http://112.33.57.75:8886',
   changeOrigin: true
-}))
+}));
 // 让 express 使用 bundler 中间件，这将让 parcel 处理你 express 服务器上的每个请求
 app.use(bundler.middleware());
 

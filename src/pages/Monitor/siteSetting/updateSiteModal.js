@@ -9,6 +9,10 @@ const FormItem=Form.Item;
 
 @observer
 class UpdateSiteModal extends Component{
+    constructor(props){
+        super(props);
+        console.log(this.props,'111111');
+    }
     render(){
         let { props } = this.props;
         let { visible } = props;
@@ -141,9 +145,15 @@ class UpdateSiteModal extends Component{
             complete: () => {
                 //这里应该从新请求更新页面
                /* this.getData();*/
+                this.gotoFather();
             }
         })
 
+    };
+    gotoFather=()=>{
+        console.log('gotoFather');
+        console.log(this.props);
+        this.props.getData(this.props.info);
     };
 }
 export default Form.create()(UpdateSiteModal);

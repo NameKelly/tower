@@ -35,6 +35,7 @@ class Revise extends Component{
 
         return(
             <Modal
+                onCancel={() => store.revise_modal.visible= false}
                 visible={visible}
                 title='传感器设置'
                 {...CommonModalConfig}

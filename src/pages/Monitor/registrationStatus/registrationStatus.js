@@ -15,8 +15,8 @@ const columns = [{
     title: 'IMSI',
     dataIndex: 'imsi',
 }, {
-    title: 'ID',
-    dataIndex: 'id',
+    title: 'sensorID',
+    dataIndex: 'sensorID',
 },{
     title: '注册时间',
     dataIndex: 'create_date',
@@ -35,13 +35,14 @@ export default class RegistrationStatus extends Component{
             <Select defaultValue='IMEI' style={{ width: 90 }} onChange={this.selectChange}>
                 <Option value='imei'>IMEI</Option>
                 <Option value='sensorID'>sensorID</Option>
-                <Option value='id'>ID</Option>
+                {/*<Option value='id'>ID</Option>*/}
+                <Option value='company_name'>公司名</Option>
             </Select>
         );
         return(
             <Fragment>
                 <Card
-                    title="显示传感器注册状态"
+                    title="传感器管理"
                     extra={
                         <Button
                             type='primary'
@@ -52,12 +53,11 @@ export default class RegistrationStatus extends Component{
                     }
                 >
                     <div style={{padding:'0 0 10px 0'}}>
-                        <Select defaultValue='注册状态（全部）' onChange={this.handleChange1}>
+                       {/* <Select defaultValue='注册状态（全部）' onChange={this.handleChange1}>
                             <Option value='注册状态（全部）'>注册状态（全部）</Option>
                             <Option value='注册成功'>注册成功</Option>
                             <Option value='注册失败'>注册失败</Option>
-                        </Select>
-
+                        </Select>*/}
                         <Search
                             addonBefore={selectBefore}
                             placeholder="请输入搜索内容"
@@ -66,7 +66,7 @@ export default class RegistrationStatus extends Component{
                             style={{width:'40%',marginLeft:'20px'}}
                         />
                     </div>
-                    <Table dataSource={store.reStatus_data} columns={columns} rowKey={(record,index)=>index} />
+                    <Table dataSource={store.reStatus_data.reverse()} columns={columns} rowKey={(record,index)=>index} />
 
                    {/* <Pagination
                         size='small'
@@ -76,7 +76,7 @@ export default class RegistrationStatus extends Component{
                         showSizeChanger showQuickJumper
                         />*/}
                 </Card>
-                <AddDevice props={store.addDevice_modal}/>
+                <AddDevice props={store.addDevice_modal} gotoFather={this.getData}/>
             </Fragment>
         );
     }

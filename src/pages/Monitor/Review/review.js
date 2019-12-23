@@ -66,9 +66,9 @@ export default class Review extends Component{
         );
         return(
             <Fragment>
-                <Breadcrumb>
+                {/*<Breadcrumb>
                     <Breadcrumb.Item>管理员审核</Breadcrumb.Item>
-                </Breadcrumb>
+                </Breadcrumb>*/}
                 <Card>
                     <div style={{width:'100%',textAlign:'center'}}>
                         <Search

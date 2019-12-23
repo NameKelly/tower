@@ -135,7 +135,8 @@ class Store {
   @observable angle_big_y15=[];
   @observable activeKey1='3';
 
-
+  @observable companyData=[];
+  @observable companyArr=[];
 
 
 
