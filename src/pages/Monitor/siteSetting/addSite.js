@@ -1,72 +1,62 @@
 import React, { Component,Fragment } from 'react';
-import { Card,Breadcrumb ,Input,Button,Upload,Icon,Form} from 'antd';
+import { Card,Breadcrumb ,Input,Button,Upload,Icon,Form,message} from 'antd';
 import {Link} from 'react-router-dom';
 import request from "../../../helpers/request";
 import store from "../store";
 import axios from "axios";
-import AddSiteModal from './addSiteModal'
+import AddSiteModal from './addSiteModal';
+import $ from  'jquery'
 
 const InputGroup = Input.Group;
 const Search=Input.Search;
 export default class AddSite extends Component{
     state={
-        file:''
+        file:'',
+        fileName: '',
+        excel_path:'',
+        formData:''
     };
     handleUpload=({action, file, onSuccess, onError})=>{
         let _this=this;
-        this.setState({
-            file:file
-        });
         let formData = new FormData();
         formData.append('photo', file);
-        console.log('formData',formData);
-        request({
-            url: action,
-            postType: 'formdata',
-            data: {
-                excel_file:file
+        this.setState({
+            formData:formData,
+            file:file,
+            fileName:file.name
+        });
+        $.ajax({
+            url: "api/upload_excel",
+            type: "post",
+            cache: false, //上传文件不需要缓存
+            data: formData,
+            processData: false, // 告诉jQuery不要去处理发送的数据
+            contentType: false, // 告诉jQuery不要去设置Content-Type请求头
+            success: function (data) {
+                let json=JSON.parse(data);
+                _this.setState({
+                    excel_path:json.data
+                });
+                console.log('data',data)
             },
-            success: (res) => {
-                console.log(res);
-               // onSuccess();
-                console.log(res);
-            },
-            complete: (res) => {
-                console.log('res',res);
-                //onError();
+            error: function (data) {
+                console.log('data',data)
             }
         })
-       /* axios.post('api/upload_excel', {
-            excel_file:_this.state.file
-        })
-            .then(function (response) {
-                console.log('res',response);
-                console.log('this.state.file',_this.state.file)
-            })
-            .catch(function (error) {
-                console.log(error);
-            });*/
     };
-
-    handleUpload2=()=>{
-        let formData = new FormData();
-        //let dom=this.refs.fileId;
-        let dom=document.getElementById('fileId');
-
-        console.log('dom',dom);
-        console.log(dom.files[0]);
-        formData.append('photo', dom.files[0]);  //添加图片信息的参数
-        console.log('formData',formData);
+    add_site_p=()=>{
         request({
-            url: 'api/upload_excel',
+            url:'api/add_site_p',
             data: {
-                excel_file:formData
+                path:this.state.excel_path
             },
-            success: (res) => {
-                console.log(res);
-            },
-            complete: (res) => {
-                console.log(res);
+            success: ({res}) => {
+            console.log('res',res);
+            this.setState({
+                fileName: '',
+                excel_path:'',
+                formData:''
+            })
             }
         })
     };
@@ -106,16 +96,12 @@ export default class AddSite extends Component{
                                 <Button>取消</Button>
                             </Form.Item>
                             <Form.Item>
-                                <Button type='primary'>保存</Button>
+                                <Button type='primary' onClick={this.add_site_p}>上传</Button>
                             </Form.Item>
                         </Form>
 
                     </div>
                 </Card>
-                {/*<Card>
-                    <input type={'file'} id="fileId" name="fileId" hidefocus="true" ref={'fileId'}/>
-                    <Button onClick={this.handleUpload2}>上传Excel表</Button>
-                </Card>*/}
                 <AddSiteModal props={store.addSite_modal} getData={this.getData} info={''}/>
             </Fragment>
         );
