@@ -119,12 +119,6 @@ class Monitor extends React.Component {
     key:'06',
 
   }, {
-    title: '方差',
-    dataIndex: 'variance',
-    width: 90,
-    key:'07',
-
-  }, {
     title: '日期',
     dataIndex: 'create_time',
     width: 150,
@@ -262,7 +256,7 @@ class Monitor extends React.Component {
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>y轴倾角</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>高度</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>偏移距离</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>
+                     {/* <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>*/}
                     </div>
                     <div style={{ display: 'flex', marginTop: 10, alignItems:'center' }}>
                       <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle:''}°</span></div>
@@ -270,7 +264,7 @@ class Monitor extends React.Component {
                       <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle_y:''}°</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.height:''}m</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle_range:''}cm</span></div>
-                      <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{''}cm</span></div>
+                      {/*<div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{''}cm</span></div>*/}
 
                     </div>
                   </Card>
@@ -291,10 +285,10 @@ class Monitor extends React.Component {
                           <ReactEcharts option={this.getOption2('倾角图',store.series)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                         </div>
                       </TabPane>
-                      <TabPane tab="电池电压图" key="2">
+                      {/*<TabPane tab="电池电压图" key="2">
                         <div style={{ padding: '0 24px', marginTop: 10 }}>
 
-                        </div></TabPane>
+                        </div></TabPane>*/}
                       <TabPane tab="工作温度图" key="3">
                         <div style={{ padding: '0 24px', marginTop: 10 }}>
                           <ReactEcharts option={this.getOption2('工作温度图',store.series3)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />

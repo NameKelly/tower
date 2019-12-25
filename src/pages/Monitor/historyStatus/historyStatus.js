@@ -58,10 +58,6 @@ const columns = [
     title:'偏移距离',
     dataIndex:'angle_range',
     key:'angle_range'
-  },{
-    title:'方差',
-    dataIndex:'variance',
-    key:'variance'
   },
   {
     title:'平均电池电压',

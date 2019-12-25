@@ -17,7 +17,11 @@ const columns = [{
 }, {
     title: 'sensorID',
     dataIndex: 'sensorID',
-},{
+},
+    {
+        title:'公司名称',
+        dataIndex:'company_name'
+    },{
     title: '注册时间',
     dataIndex: 'create_date',
 },{

@@ -32,6 +32,8 @@ export default class SiderMenu extends React.Component {
                             </span>
                         </Link>
                     </Menu.Item>
+                    {
+                        sessionStorage.getItem('user')!='admin'?
                     <Menu.Item key="2">
                         <Link to='/monitor'>
                             <Icon type="table" />
@@ -39,13 +41,14 @@ export default class SiderMenu extends React.Component {
                             铁塔监控
                             </span>
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item>:''}
                     <Menu.Item key="3" style={{display:'none'}}>
                         <Link to='/gps'>
                             <Icon type="global" />
                             <span>GPS</span>
                         </Link>
                     </Menu.Item>
+
                     <Menu.Item key="4" style={{display:'none'}}>
                         <Link to='/error'>
                             <Icon type="info-circle" theme="outlined" />
@@ -63,24 +66,30 @@ export default class SiderMenu extends React.Component {
                             </Link>
                         </Menu.Item>:''
                     }
+                    {
+                        sessionStorage.getItem('user')!='admin'?
                     <Menu.Item key="6">
                         <Link to='/review'>
                             <Icon type="user" />
                             <span>管理员审核</span>
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item>:''}
+                    {
+                        sessionStorage.getItem('user')!='admin'?
                     <Menu.Item key="7">
                         <Link to='/siteSetting'>
                             <Icon type="desktop" />
                             <span>站名设置</span>
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item>:''}
+                    {
+                        sessionStorage.getItem('user')!='admin'?
                     <Menu.Item key="8">
                         <Link to='/warn'>
                             <Icon type="line-chart" />
                             <span>预警模型</span>
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item>:''}
                 </Menu>
             </Sider>
 

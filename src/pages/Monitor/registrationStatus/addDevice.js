@@ -111,30 +111,37 @@ class AddDevice extends Component{
                 console.log('搜索',data);
                     store.companyData=data.map(item=>item.company_name);
                     let arr=this.filterArr(store.companyData);
-                    //console.log('arr',arr,typeof arr,store.companyData);
+                    console.log('arr',arr,typeof arr,store.companyData);
                     store.companyArr=arr;
 
             }
         });
     };
     onSelect=(value)=>{
+        let _this=this;
         console.log('选中',value);
         store.companyArr=[];
-        let id=this.getCompanyId(store.companyData)[0];
-        console.log('company_id',id);
-        this.setState({
-            company_id:id
-        })
+        request({
+            url: 'api/select_machine',
+            method:'GET',
+            data:{
+                company_name:value
+            },
+            success: ({
+                          data
+                      }) => {
+                _this.setState({
+                    company_id:data[0].company_id
+                })
+                console.log('company_id',_this.state.company_id);
+            }
+        });
     };
 
     filterArr=(arr)=>{
         console.log('筛选数据');
         return Array.from(new Set(arr));
     };
-
-    getCompanyId=(arr,keyWord)=>{
-        return arr.filter(item => item.company_name == keyWord)
-    }
 }
 
 export default Form.create()(AddDevice);
