@@ -8,33 +8,45 @@ import request from "../../../helpers/request";
 const Option = Select.Option;
 const Search = Input.Search;
 
-const columns = [{
-    title: 'IMEI',
-    dataIndex: 'imei',
-}, {
-    title: 'IMSI',
-    dataIndex: 'imsi',
-}, {
-    title: 'sensorID',
-    dataIndex: 'sensorID',
-},
-    {
-        title:'公司名称',
-        dataIndex:'company_name'
-    },{
-    title: '注册时间',
-    dataIndex: 'create_date',
-},{
-    title: '更新时间',
-    dataIndex: 'update_date',
-}
-];
+
 @observer
 export default class RegistrationStatus extends Component{
     state={
         selectValue:'imei'
     };
     render(){
+        const columns = [{
+            title: 'IMEI',
+            dataIndex: 'imei',
+        }, {
+            title: 'IMSI',
+            dataIndex: 'imsi',
+        }, {
+            title: 'sensorID',
+            dataIndex: 'sensorID',
+        },
+            {
+                title:'公司名称',
+                dataIndex:'company_name'
+            },{
+                title: '注册时间',
+                dataIndex: 'create_date',
+            },{
+                title: '更新时间',
+                dataIndex: 'update_date',
+            },{
+                title: '操作',
+                render:(record,index)=>{
+                    return(
+                        <Fragment>
+                           {/* <a onClick={()=>this.handleChange(record)}>修改</a>
+                            <span style={{margin:'0 2px'}}> | </span>*/}
+                            <a style={{color:'red'}} onClick={()=>this.handleDelete(record)}>删除</a>
+                        </Fragment>
+                    )
+                }
+            }
+        ];
         const selectBefore = (
             <Select defaultValue='IMEI' style={{ width: 90 }} onChange={this.selectChange}>
                 <Option value='imei'>IMEI</Option>
@@ -84,6 +96,21 @@ export default class RegistrationStatus extends Component{
             </Fragment>
         );
     }
+    handleDelete=(record)=>{
+        console.log('record.machine_id',record.machine_id);
+        request({
+            url: 'api/delete_machine',
+            data:{
+                id:record.machine_id
+            },
+            success: ({
+                          data
+                      }) => {
+                console.log('api/delete_machine',data);
+                this.getData();
+            }
+        });
+    };
     selectChange=(value)=>{
         this.setState({
             selectValue:value
@@ -96,9 +123,6 @@ export default class RegistrationStatus extends Component{
         data[key]=value;
         console.log('onSearch',value,data);
         this.getData(data);
-    };
-    handleChange1=(value)=>{
-        console.log('handleChange1')
     };
     getData=(key)=>{
         let data={};

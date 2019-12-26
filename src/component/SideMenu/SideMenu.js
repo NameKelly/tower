@@ -25,7 +25,7 @@ export default class SiderMenu extends React.Component {
                 <div className={style.logo} />
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                     <Menu.Item key="1">
-                        <Link to='/monitor'>
+                        <Link to={sessionStorage.getItem('user')=='admin'?'/registrationStatus':'/monitor'}>
                             <Icon type="home" />
                             <span>
                             首页
@@ -42,7 +42,7 @@ export default class SiderMenu extends React.Component {
                             </span>
                         </Link>
                     </Menu.Item>:''}
-                    <Menu.Item key="3" style={{display:'none'}}>
+                   {/* <Menu.Item key="3" style={{display:'none'}}>
                         <Link to='/gps'>
                             <Icon type="global" />
                             <span>GPS</span>
@@ -54,7 +54,7 @@ export default class SiderMenu extends React.Component {
                             <Icon type="info-circle" theme="outlined" />
                             <span>故障记录</span>
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item>*/}
                     {
                         sessionStorage.getItem('user')=='admin'?
                             <Menu.Item key="5">
