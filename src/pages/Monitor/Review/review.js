@@ -9,56 +9,64 @@ import Revise from './Revise/revise';
 
 const Search = Input.Search;
 const Option = Select.Option;
-const columns = [
-    {
-        title:'IMEI',
-        dataIndex:'imei',
-        sorter: (a, b) => a.date - b.date
-    },
-    {
-        title:'IMSI',
-        dataIndex:'imsi',
-    },
-    {
-        title:'sensorID',
-        dataIndex:'sensorID',
-    },
-    {
-        title:'高度',
-        dataIndex:'tower_hight',
-    },
-    {
-        title: '站名',
-        dataIndex: 'site_name',
-    },{
-        title: '代维公司',
-        dataIndex: 'maintain_company',
-    },
-    {
-        title:'地址',
-        dataIndex:'site_address',
-    },
-    {
-        title:'操作',
-        render: (text, record,index) => {
-            return (
-                <Fragment>
-                    <a>修改</a>
-                </Fragment>
-            )}
-    }
-];
 
 @observer
 export default class Review extends Component{
-   state={
-       selectValue:'imei'
-        };
+    state={
+        selectValue:'imei'
+    };
     render(){
+        const columns = [
+            {
+                title:'IMEI',
+                dataIndex:'imei',
+                sorter: (a, b) => a.date - b.date
+            },
+            {
+                title:'IMSI',
+                dataIndex:'imsi',
+            },
+            {
+                title:'sensorID',
+                dataIndex:'sensorID',
+            },
+            {
+                title:'高度',
+                dataIndex:'tower_hight',
+            },
+            {
+                title: '站名',
+                dataIndex: 'site_name',
+            },{
+                title: '代维公司',
+                dataIndex: 'maintain_company',
+            },
+            {
+                title:'地址',
+                dataIndex:'site_address',
+            },{
+                title:'状态',
+                dataIndex:'is_examine',
+                fixed: 'right'
+            },
+            {
+                title:'操作',
+                fixed: 'right',
+                render: (text, record,index) => {
+                    return (
+                        <Fragment>
+                            <a onClick={()=>{store.reviseMsg=record;store.revise_modal.visible=true}}>修改</a>
+                            <a style={{color:'red'}} onClick={()=>this.handleDelete(record)}> 删除 </a>
+                        </Fragment>
+                    )}
+            }
+        ];
+
         const selectBefore = (
             <Select defaultValue="IMEI" style={{ width: 90 }} onChange={this.selectChange}>
                 <Option value="imei" key='imei'>IMEI</Option>
                 <Option value="imsi" key='imsi'>IMSI</Option>
+                <Option value="sensorID" key='addr'>sensorID</Option>
                 <Option value="site_name" key='site'>站名</Option>
                 <Option value="site_address" key='addr'>地址</Option>
                 <Option value="maintain_company	" key='maintain_company'>代维公司</Option>
@@ -80,20 +88,12 @@ export default class Review extends Component{
                         />
                     </div>
                     <Table
+                        scroll={{ x: 1500 }}
                         columns={columns}
                         dataSource={store.review_data}
                         pagination={true}
-                        size={'small'}
-                        rowKey={record => record.imsi}
-                        onRow={(record,index) => {
-                            return {
-                                onClick: () => {
-                                    store.reviseMsg=record;
-                                    store.revise_modal.visible=true;
-                                }
-                            };
-                        }}
-                        >
+                        rowKey={(record,index) =>index}
+                    >
 
                     </Table>
                     {/*<Pagination
@@ -103,11 +103,26 @@ export default class Review extends Component{
                         showSizeChanger showQuickJumper
                         />*/}
                 </Card>
-                <Revise props={store.revise_modal} initialDatas={store.reviseData} params={store.reviseMsg}/>
+                <Revise props={store.revise_modal} initialDatas={store.reviseData} params={store.reviseMsg} getData={this.getData}/>
                 <div style={{height:'50px',lineHeight:'50px',textAlign:'center'}}>copyright© 五邑大学系统工程研究所</div>
             </Fragment>
         );
     }
+    handleDelete=(record)=>{
+        console.log('删除',record,record.machine_id);
+        request({
+            url:'api/delete_tower_examine',
+            data:{
+                id:record.id
+            },
+            success: (res) => {
+                console.log('res',res);
+                this.getData();
+            },
+            complete: () => {
+            }
+        })
+    };
     onSearch=(value)=>{
         let key=this.state.selectValue;
         let data={};
@@ -127,7 +142,8 @@ export default class Review extends Component{
             data=key
         }
         request({
-            url: 'api/select_tower',
+            //url: 'api/select_tower',
+            url:'api/select_tower_examine',
             method:'GET',
             data,
             success: (res) => {

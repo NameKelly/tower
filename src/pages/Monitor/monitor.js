@@ -48,7 +48,6 @@ const ini_state = ['', '成功', '待处理'];
 class Monitor extends React.Component {
   constructor(props) {
     super(props);
-
   }
   data = [{
     "params": {
@@ -65,65 +64,68 @@ class Monitor extends React.Component {
       return <a onClick={(e) => { e.preventDefault(); this.select_site2(record)}}>{text}</a>
     }
   }];
-  sensorIDColumns=[ {
-    title: '传感器信息',
-    colSpan: 2,
-    dataIndex: 'sensorID',
-    width: 120,
-    key:'2',
-    className: style.sensorID,
-    render: (text, record,index) => {
-      return <a onClick={(e) => { e.preventDefault(); this.getDeviceData('rowChoose',text,record)}}>{text}</a>
-    }
-  },
+  sensorIDColumns=[
     {
+      title: '传感器信息',
+      colSpan: 2,
+      dataIndex: 'sensorID',
+      width: 120,
+      key:'2',
+      className: style.sensorID,
+      render: (text, record,index) => {
+        return <a onClick={(e) => { e.preventDefault(); this.getDeviceData('rowChoose',text,record)}}>{text}</a>
+      }
+    }, {
       width: 70,
       key:'3',
       className: style.sensorID,
       render: (index,record,text)=>{
-          return record.sensorID!='全部'?<Button size='small' onClick={() => {store.initialize_modal.visible = true;store.sensorID=record.sensorID}}>初始化</Button>:''
+        return record.sensorID!='全部'?<Button size='small' onClick={()=>this.initialization(record)}>初始化</Button>:''
       }
-    }];
-  workColumns = [{
-    title: '状态',
-    dataIndex: 'deviceState',
-    width: 120,
-    key:'01',
-  }, {
-    title: '倾角',
-    dataIndex: 'angle',
-    width: 90,
-    key:'02',
-  }, {
-    title: 'X轴倾角',
-    dataIndex: 'angle_x',
-    width: 90,
-    key:'03',
+    }
+  ];
+  workColumns = [
+    {
+      title: '状态',
+      dataIndex: 'deviceState',
+      width: 120,
+      key:'01',
+    }, {
+      title: '倾角',
+      dataIndex: 'angle',
+      width: 90,
+      key:'02',
+    }, {
+      title: 'X轴倾角',
+      dataIndex: 'angle_x',
+      width: 90,
+      key:'03',
 
-  }, {
-    title: 'Y轴倾角',
-    dataIndex: 'angle_y',
-    width: 90,
-    key:'04',
+    }, {
+      title: 'Y轴倾角',
+      dataIndex: 'angle_y',
+      width: 90,
+      key:'04',
 
-  },{
-    title: '高度',
-    dataIndex: 'height',
-    width: 90,
-    key:'05',
+    },{
+      title: '高度',
+      dataIndex: 'height',
+      width: 90,
+      key:'05',
 
-  },  {
-    title: '偏移距离',
-    dataIndex: 'angle_range',
-    width: 90,
-    key:'06',
+    },  {
+      title: '偏移距离',
+      dataIndex: 'angle_range',
+      width: 90,
+      key:'06',
 
-  }, {
-    title: '日期',
-    dataIndex: 'create_time',
-    width: 150,
-    key:'08',
-  }, ];
+    }, {
+      title: '日期',
+      dataIndex: 'create_time',
+      width: 150,
+      key:'08',
+    }
+  ];
 
   getOption2;
 
@@ -222,14 +224,14 @@ class Monitor extends React.Component {
               <Row gutter={3}>
                 <Col span={5} style={{ height: 600 }}>
                   <Card title='基本信息' style={{ height: 360 }}>
-                   {/* <h4>IMEI: <span className={style.basicMessage}>{imei}</span></h4>*/}
+                    {/* <h4>IMEI: <span className={style.basicMessage}>{imei}</span></h4>*/}
                     <h4>站名: <span className={style.basicMessage}>{site_name}</span></h4>
                     <h4>站点地址: <span className={style.basicMessage}>{site_address}</span></h4>
                     <h4>经纬度: <span className={style.basicMessage}>({site_longitude},{site_latitude})</span></h4>
                     <h4>铁塔高度: <span className={style.basicMessage}>{tower_hight}</span></h4>
                     <h4>距离警报指数: <span className={style.basicMessage}>{alert_distance}</span></h4>
                     <h4>警报电话: <span className={style.basicMessage}>{alert_phone}</span></h4>
-                   {/* <h4>创建时间: <span className={style.basicMessage}>{create_time}</span></h4>*/}
+                    {/* <h4>创建时间: <span className={style.basicMessage}>{create_time}</span></h4>*/}
                     <h4>警报功能设置
                       <Button size='small' type='primary' style={{ float: 'right' }} onClick={() => {
                         alarm_modal.visible = true
@@ -246,7 +248,7 @@ class Monitor extends React.Component {
                         style={{height:'100%',overflow:'hidden'}}
                     />
                   </Card>
-                    </Col>
+                </Col>
                 <Col span={13} style={{ marginBottom: 12 }} style={{ height: 180, marginBottom: 10 }}>
                   <Card title='实时工作状态' style={{ height: "100%" }}
                         extra={<div>最近一次更新：{realtimeData!={}?realtimeData.create_time:''}</div>}>
@@ -256,7 +258,7 @@ class Monitor extends React.Component {
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>y轴倾角</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>高度</span></div>
                       <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>偏移距离</span></div>
-                     {/* <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>*/}
+                      {/* <div style={{ flex: 1, textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}><span>方差</span></div>*/}
                     </div>
                     <div style={{ display: 'flex', marginTop: 10, alignItems:'center' }}>
                       <div style={{ flex: 1, textAlign: 'center', fontSize: 18, color: 'green' }}><span>{realtimeData!={}?realtimeData.angle:''}°</span></div>
@@ -336,6 +338,14 @@ class Monitor extends React.Component {
       return angle
     }
   };
+  //初始化
+  initialization=(record)=>{
+    store.sensorID=record.sensorID;
+    store.initialize_modal.visible = true;
+    store.machine_site_id=record.machine_site_id;
+    console.log('初始化record',record)
+  };
+
   //传感器信息
   select_tower=(site_id,lineData)=>{
     request({
@@ -354,8 +364,12 @@ class Monitor extends React.Component {
         let dataSource=store.sensorID_data.concat(data);
         store.sensorID_data =dataSource;
         console.log('sensorID_data',dataSource,store.sensorID_data);
-        this.getDeviceData('sensorID',store.sensorID_data[1].sensorID);//初始传感器历史数据
-     }
+        if(store.sensorID_data[1]){
+          this.getDeviceData('sensorID',store.sensorID_data[1].sensorID);//初始传感器历史数据
+        }else{
+          store.months_data = [];
+        }
+      }
     });
   };
   onBlur=()=>{
@@ -379,7 +393,6 @@ class Monitor extends React.Component {
       }
     }
     request({
-      /*url: 'api/show_sensor_list',*/
       url:'api/select_site',
       method: 'GET',
       data,
@@ -416,14 +429,14 @@ class Monitor extends React.Component {
       method:'GET',
       data: {
         site_id,
-        startTime:startTime2,
-        endTime:endTime2,
+        startDate:startTime2,
+        endDate:endTime2,
       },
       success: ({
                   data
                 }) => {
 
-        console.log('获取倾角图数据');
+        console.log('获取倾角图数据',data);
         let arr=this.filterData(data,'machine_site_id','sensorID');
         console.log('arr',arr);
         this.getAngle(arr);
@@ -437,24 +450,25 @@ class Monitor extends React.Component {
     if(type=='site_id'){
       data={
         site_id:key,
-        startTime:startTime2,
-        endTime:endTime2,
+        startDate:startTime2,
+        endDate:endTime2,
         page:'1',
         size:'30'
       }
     }else if(type=='machine_site_id'){
+      store.machine_site_id=key;
       data={
         machine_site_id:key,
-        startTime:startTime2,
-        endTime:endTime2,
+        startDate:startTime2,
+        endDate:endTime2,
         page:'1',
         size:'30'
       }
     }else if(type=='sensorID'){
       data={
         sensorID:key,
-        startTime:startTime2,
-        endTime:endTime2,
+        startDate:startTime2,
+        endDate:endTime2,
         page:'1',
         size:'30'
       }
@@ -463,48 +477,41 @@ class Monitor extends React.Component {
       if(key=='全部'){
         data={
           site_id:store.site_id,
-          startTime:startTime2,
-          endTime:endTime2,
+          startDate:startTime2,
+          endDate:endTime2,
           page:'1',
           size:'30'
         }
       }else{
         data={
           sensorID:key,
-          startTime:startTime2,
-          endTime:endTime2,
+          startDate:startTime2,
+          endDate:endTime2,
           page:'1',
           size:'30'
         }
       }
     }
-      request({
-        url:'api/show_data_list',
-        method:'GET',
-        data: data,
-        success: ({
-                    data
-                  }) => {
-          console.log("哈哈哈",key,data);
-          if(data.length>0){
-            store.realtimeData = data[0];
-            store.months_data = data.slice(0,30);
-            store.machine_site_id=data[0].machine_site_id;
-          }else{
-            store.realtimeData ={};
-            store.months_data = [];
-            store.machine_site_id='';
-          }
-        //let arr=this.filterData(store.months_data,'machine_site_id','sensorID');
-        //   if(type=='site_id' || type=='rowChoose'){
-        //     console.log('获取倾角图数据');
-        //     let arr=this.filterData(data,'machine_site_id','sensorID');
-        //     this.getAngle(arr);
-        //     this.getTemperature(arr);
-        //   }
-
+    request({
+      url:'api/show_data_list',
+      method:'GET',
+      data: data,
+      success: ({
+                  data
+                }) => {
+        console.log("哈哈哈",key,data);
+        if(data.length>0){
+          store.realtimeData = data[0];
+          store.months_data = data.slice(0,30);
+          store.machine_site_id=data[0].machine_site_id;
+        }else{
+          store.realtimeData ={};
+          store.months_data = [];
+          store.machine_site_id='';
         }
-      })
+
+      }
+    })
   };
   //选择站名
   select_site=(key)=>{
@@ -524,13 +531,13 @@ class Monitor extends React.Component {
         this.select_tower(store.site_id);
       }
     })
-};
+  };
   select_site2=(record)=>{
     console.log('选择站名','record',record,record.site_name);
     store.site_id=record.site_id;
     store.basicMsg = record;
-    this.firstLine(store.site_id);
-    this.select_tower(store.site_id);
+    this.firstLine(record.site_id);
+    this.select_tower(record.site_id);
   };
 //重组数组，筛选数据
   filterData=(arr,key,key2)=>{
@@ -562,93 +569,103 @@ class Monitor extends React.Component {
 //获取倾角图数据
   getAngle=(arr)=>{
     let filterArr=[];
-    arr.map((item)=>{
-      filterArr.push({
-        name:item.sensorID,
-        type:'line',
-        stack: '总量',
-        data:item.data.map(item=>item.angle)
-      })
-    });
-    console.log('store.series',store.series,arr);
-    store.series=filterArr;
-    store.echartsData=arr.map(item=>item.sensorID);
-    store.echartsXData=arr[0].data.map(item=>item.create_time)
+    if(arr.length!=0){
+      arr.map((item)=>{
+        filterArr.push({
+          name:item.sensorID,
+          type:'line',
+          stack: '总量',
+          data:item.data.map(item=>item.angle)
+        })
+      });
+      console.log('store.series',store.series,arr);
+      store.series=filterArr;
+      store.echartsData=arr.map(item=>item.sensorID);
+      store.echartsXData=arr[0].data.map(item=>item.create_time)
+    }else{
+      store.series=filterArr;
+      store.echartsData=[];
+    }
   };
   //获取温度图数据
   getTemperature=(arr)=>{
     let filterArr=[];
-    arr.map((item)=>{
-      filterArr.push({
-        name:item.sensorID,
-        type:'line',
-        stack: '总量',
-        data:item.data.map(item=>item.deviceTemperature)
-      })
-    });
-    store.series3=filterArr;
-    store.echartsData=arr.map(item=>item.sensorID);
-    store.echartsXData=arr[0].data.map(item=>item.create_time)
+    if(arr.length!=0){
+      arr.map((item)=>{
+        filterArr.push({
+          name:item.sensorID,
+          type:'line',
+          stack: '总量',
+          data:item.data.map(item=>item.deviceTemperature)
+        })
+      });
+      store.series3=filterArr;
+      store.echartsData=arr.map(item=>item.sensorID);
+      store.echartsXData=arr[0].data.map(item=>item.create_time)
+    }else{
+      store.series3=filterArr;
+      store.echartsData=[];
+    }
   };
 
-   getOption = () => {
-     return {
-       title: [{
-         left: '3%',
-         text: '倾角变化图'
-       }],
-       grid: {
-         left: '3%',
-         right: '4%',
-         bottom: '3%',
-         containLabel: true
-       },
-       tooltip: {
-         trigger: 'axis'
-       },
-       legend: {
-         data: ['总倾角', 'x轴倾角', 'y轴倾角', '距离']
-       },
-       xAxis: [{
-         type: 'category',
-         data: store.dateValue
-       }],
-       yAxis: [{
-         splitLine: {
-           show: false
-         }
-       }],
-       dataZoom: [{
-         show: true,
-         start: 10,
-         end: 20,
-         realtime: true
-       }, {
-         type: 'slider'
-       }],
-       series: [{
-         name: '总倾角',
-         type: 'line',
-         showSymbol: true,
-         data: store.angleValue
-       }, {
-         name: 'x轴倾角',
-         type: 'line',
-         showSymbol: true,
-         data: store.xValue
-       }, {
-         name: 'y轴倾角',
-         type: 'line',
-         showSymbol: true,
-         data: store.yValue
-       }, {
-         name: '距离',
-         type: 'line',
-         showSymbol: true,
-         data: store.rangeValue
-       }]
-     }
-   };
+  getOption = () => {
+    return {
+      title: [{
+        left: '3%',
+        text: '倾角变化图'
+      }],
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: ['总倾角', 'x轴倾角', 'y轴倾角', '距离']
+      },
+      xAxis: [{
+        type: 'category',
+        data: store.dateValue
+      }],
+      yAxis: [{
+        splitLine: {
+          show: false
+        }
+      }],
+      dataZoom: [{
+        show: true,
+        start: 10,
+        end: 20,
+        realtime: true
+      }, {
+        type: 'slider'
+      }],
+      series: [{
+        name: '总倾角',
+        type: 'line',
+        showSymbol: true,
+        data: store.angleValue
+      }, {
+        name: 'x轴倾角',
+        type: 'line',
+        showSymbol: true,
+        data: store.xValue
+      }, {
+        name: 'y轴倾角',
+        type: 'line',
+        showSymbol: true,
+        data: store.yValue
+      }, {
+        name: '距离',
+        type: 'line',
+        showSymbol: true,
+        data: store.rangeValue
+      }]
+    }
+  };
   getOption1 = () => {
     return {
       title:{

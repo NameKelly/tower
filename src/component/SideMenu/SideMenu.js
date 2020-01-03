@@ -23,9 +23,9 @@ export default class SiderMenu extends React.Component {
                 onCollapse={this.onCollapse}
             >
                 <div className={style.logo} />
-                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
+                <Menu theme="dark" defaultSelectedKeys={sessionStorage.getItem('user')=='admin'?['5']:['1']} mode="inline">
                     <Menu.Item key="1">
-                        <Link to={sessionStorage.getItem('user')=='admin'?'/registrationStatus':'/monitor'}>
+                        <Link to={'/monitor'}>
                             <Icon type="home" />
                             <span>
                             首页
@@ -34,15 +34,15 @@ export default class SiderMenu extends React.Component {
                     </Menu.Item>
                     {
                         sessionStorage.getItem('user')!='admin'?
-                    <Menu.Item key="2">
-                        <Link to='/monitor'>
-                            <Icon type="table" />
-                            <span>
+                            <Menu.Item key="2">
+                                <Link to='/monitor'>
+                                    <Icon type="table" />
+                                    <span>
                             铁塔监控
                             </span>
-                        </Link>
-                    </Menu.Item>:''}
-                   {/* <Menu.Item key="3" style={{display:'none'}}>
+                                </Link>
+                            </Menu.Item>:null}
+                    {/* <Menu.Item key="3" style={{display:'none'}}>
                         <Link to='/gps'>
                             <Icon type="global" />
                             <span>GPS</span>
@@ -58,38 +58,37 @@ export default class SiderMenu extends React.Component {
                     {
                         sessionStorage.getItem('user')=='admin'?
                             <Menu.Item key="5">
-                            <Link to='/registrationStatus'>
-                                <Icon type="border" />
-                                <span>
+                                <Link to='/registrationStatus'>
+                                    <Icon type="border" />
+                                    <span>
                             传感器管理
                             </span>
-                            </Link>
-                        </Menu.Item>:''
-                    }
+                                </Link>
+                            </Menu.Item>:null}
                     {
                         sessionStorage.getItem('user')!='admin'?
-                    <Menu.Item key="6">
-                        <Link to='/review'>
-                            <Icon type="user" />
-                            <span>管理员审核</span>
-                        </Link>
-                    </Menu.Item>:''}
+                            <Menu.Item key="6">
+                                <Link to='/review'>
+                                    <Icon type="user" />
+                                    <span>管理员审核</span>
+                                </Link>
+                            </Menu.Item>:null}
                     {
                         sessionStorage.getItem('user')!='admin'?
-                    <Menu.Item key="7">
-                        <Link to='/siteSetting'>
-                            <Icon type="desktop" />
-                            <span>站名设置</span>
-                        </Link>
-                    </Menu.Item>:''}
+                            <Menu.Item key="7">
+                                <Link to='/siteSetting'>
+                                    <Icon type="desktop" />
+                                    <span>站名设置</span>
+                                </Link>
+                            </Menu.Item>:null}
                     {
                         sessionStorage.getItem('user')!='admin'?
-                    <Menu.Item key="8">
-                        <Link to='/warn'>
-                            <Icon type="line-chart" />
-                            <span>预警模型</span>
-                        </Link>
-                    </Menu.Item>:''}
+                            <Menu.Item key="8">
+                                <Link to='/warn'>
+                                    <Icon type="line-chart" />
+                                    <span>预警模型</span>
+                                </Link>
+                            </Menu.Item>:null}
                 </Menu>
             </Sider>
 

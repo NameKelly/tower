@@ -100,7 +100,7 @@ class HistoryStatus extends Component{
           <Card>
             <div style={{marginBottom:10}} >
               选择日期：<RangePicker
-                placeholder={[startTime, endTime]}
+                placeholder={[startTime2, endTime2]}
                 onChange={this.DateChange}
             />
             </div>
@@ -111,14 +111,14 @@ class HistoryStatus extends Component{
                 pagination={false}
                 rowKey={(record,index)=>index}
                 onRow={(record,index) => {
-              return {
-                onClick: () => {
-                  console.log('record',record);
-                  store.details= record;
-                  console.log(store.details)
-                }
-              };
-            }}
+                  return {
+                    onClick: () => {
+                      console.log('record',record);
+                      store.details= record;
+                      console.log(store.details)
+                    }
+                  };
+                }}
             />
             <Pagination
                 style={{margin:'100px 20% 20px'}}
@@ -132,22 +132,7 @@ class HistoryStatus extends Component{
         </Fragment>
     )
   }
-  getDevicesList = () => {
-    /*request({
-      url:'api/show_data_list',
-      method:'GET',
-      data:{
-        machine_site_id:store.machine_site_id,
-      },
-      success: ({
-                  data
-                }) => {
-        console.log('历史数据',store.machine_site_id,data);
-        store.total_num=data.length+1;
-      }
-    })*/
-    store.total_num=100;
-  };
+
 
   getDataList = () => {
     request({
@@ -155,16 +140,15 @@ class HistoryStatus extends Component{
       method:'GET',
       data: {
         machine_site_id:store.machine_site_id,
-        startTime:startTime2,
-        endTime:endTime2,
+        startDate:startTime2,
+        endDate:endTime2,
         page:this.state.pages,
         size: 10
       },
-      success: ({
-                  data
-                }) => {
-        console.log("分页数据",data);
-        store.history_data = data;
+      success: (res) => {
+        store.history_data = res.data;
+        store.total_num=res.number;
+        console.log("分页数据",res,typeof res,store.history_data,store.total_num);
       }
     })
   };
@@ -177,14 +161,13 @@ class HistoryStatus extends Component{
     this.getDataList();
   };
   DateChange=(value, dateString)=>{
-    startTime=dateString[0];
-    endTime=dateString[1];
+    startTime2=dateString[0];
+    endTime2=dateString[1];
     this.getDataList();
     console.log('日期改变',value, dateString)
   };
   componentWillMount(){
     this.getDataList();
-    this.getDevicesList();
     console.log("组件更新了")
   }
 }

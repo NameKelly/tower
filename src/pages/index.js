@@ -7,6 +7,12 @@ import style from './index.css';
 import store from "./Monitor/store";
 const { Header, Content, Footer } = Layout;
 
+
+
+
+
+
+
 class App extends React.Component {
 	render() {
 		let { globalStore, history } = this.props;
@@ -14,6 +20,7 @@ class App extends React.Component {
 		let unLogin = pathName === '/login' || (pathName !== '/login' && sessionStorage.getItem('user'));
 		let is_login = !!sessionStorage.getItem('user')
 		return unLogin ? (
+
 			<Layout className={style.sideLayout}>
 				{(is_login ? <SideMenu /> : null)}
 				<Layout>
@@ -33,13 +40,18 @@ class App extends React.Component {
 								<Route path='/monitor' render={() => <WrapperComponent Comp={import('./Monitor/monitor')} globalStore={globalStore} name='monitor' />} />
 								<Route path='/gps' render={() => <WrapperComponent Comp={import('./Location/Location')} globalStore={globalStore} name='gps' />} />
 								<Route path='/login' render={() => <WrapperComponent Comp={import('./login/login')} globalStore={globalStore} name='login' />} />
-								<Route render={() => <WrapperComponent Comp={import('./Monitor/monitor')} globalStore={globalStore} />} />
-								<Route path='/code' render={() => <WrapperComponent Comp={import('./code/code')} globalStore={globalStore} name='code' />} />
+								{/*<Route render={() => <WrapperComponent Comp={import('./Monitor/monitor')} globalStore={globalStore} />} />*/}
+                                <Route render={() => sessionStorage.getItem('user')!='admin'?
+                                    <WrapperComponent Comp={import('./Monitor/monitor')} globalStore={globalStore} />:
+                                    <WrapperComponent Comp={import('./Monitor/Review/review')} globalStore={globalStore} name='review' />
+                                } />
+
 							</Switch>
 						</div>
 					</Content>
 				</Layout>
 			</Layout>
+
 		) : (
 			< Redirect to='/login'/>
 		)

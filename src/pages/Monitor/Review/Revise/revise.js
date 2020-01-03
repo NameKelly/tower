@@ -17,11 +17,11 @@ class Revise extends Component{
         request({
             url: 'api/examine_tower',
             data: {
-                id:store.reviseMsg.site_id,
+                id:store.reviseMsg.id,
                 type:type,
             },
             success: (res) => {
-
+                this.props.getData();
             },
             complete: () => {
                 store.revise_modal.visible = false;
@@ -50,13 +50,13 @@ class Revise extends Component{
                         取消
                     </Button>,
                 ]}
-                   >
+            >
                 <Form>
                     <FormItem label='传感器IMEI：' {...CommonFormConfig}>
                         {
                             getFieldDecorator('imei',{
                                 rules: [{
-                                     message: '传感器IMEI',
+                                    message: '传感器IMEI',
                                 }],
                             })(
                                 <Input placeholder={store.reviseMsg.imei} disabled/>
@@ -99,7 +99,7 @@ class Revise extends Component{
                                     style={{ marginBottom: 5 ,width:'100%'}}
                                     disabled
                                 >
-                                <Input onChange={(e)=>{this.handleChangeSite(e)}} placeholder={store.reviseMsg.site_name}/>
+                                    <Input onChange={(e)=>{this.handleChangeSite(e)}} placeholder={store.reviseMsg.site_name}/>
                                 </AutoComplete>
                             )
                         }
@@ -174,11 +174,11 @@ class Revise extends Component{
                   let inputValue=new RegExp(`(.*)(${value.split('').join(')(.*)(')})(.*)`, 'i');
                   return item.match(inputValue);
                });*/
-               let index=store.reviseSite_data.indexOf(value);
-               store.reviewChange.site=value;
-               store.reviewChange.addr=store.reviseAddr_data[index];
+        let index=store.reviseSite_data.indexOf(value);
+        store.reviewChange.site=value;
+        store.reviewChange.addr=store.reviseAddr_data[index];
 
-};
+    };
 
 }
 export default Form.create()(Revise);

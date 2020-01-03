@@ -21,10 +21,9 @@ class IntializeModal extends Component {
     let values = getFieldsValue();
     let { sensorID } = values;
     request({
-      /*url: 'api/adjust_initial_angle',*/
       url:'api/adjust_angle',
       data: {
-        "machine_site_id": store.machine_site_id,
+        machine_site_id: store.machine_site_id,
         startTime,
         endTime,
       },
@@ -52,7 +51,7 @@ class IntializeModal extends Component {
             <Form.Item label='角度均值时段：' {...CommonFormConfig}>
               {getFieldDecorator('date')(<RangePicker locale={locale} onChange={(date, dateString) => { store.initialParams.startTime = dateString[0]; store.initialParams.endTime = dateString[1]; }} />)}
             </Form.Item>
-           {/* <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
+            {/* <Form.Item label='设置X轴警报值'  {...CommonFormConfig}>
               {getFieldDecorator('warn_x', { initialValue: '' }, {
                 rules: [{ required: true, message: '请输入X轴警报值' }],
               })(<Input placeholder='2' />)}

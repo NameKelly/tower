@@ -103,6 +103,8 @@ class Store {
     startTime: moment().subtract('days',2).format('YYYY-MM-DD')
   };
 
+  @observable warn_name='';
+  @observable warn_imei='';
   @observable warn_x=[];
   @observable angle_add_x=[];
   @observable angle_add_y=[];
