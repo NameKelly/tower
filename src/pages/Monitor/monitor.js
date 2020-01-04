@@ -280,28 +280,28 @@ class Monitor extends React.Component {
                 </Col>
                 <Col span={18} style={{ marginTop: 10, height: 420 }}>
                   <Card style={{ height: '100%' }} bordered={false} bodyStyle={{ padding: '0 0 32px 0' }}>
-                    {/* <ReactEcharts option={this.getOption()} style={{ width: '100%' }} notMerge={true} lazyUpdate={true} ></ReactEcharts>*/}
                     <Tabs size='large' tabBarExtraContent={<div>日期:{realtimeData!={}?realtimeData.create_time:''}</div>}>
                       <TabPane tab="倾角图" key="1">
                         <div style={{ padding: '0 24px', marginTop: 10 }}>
                           <ReactEcharts option={this.getOption2('倾角图',store.series)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                         </div>
                       </TabPane>
-                      {/*<TabPane tab="电池电压图" key="2">
-                        <div style={{ padding: '0 24px', marginTop: 10 }}>
-
-                        </div></TabPane>*/}
                       <TabPane tab="工作温度图" key="3">
                         <div style={{ padding: '0 24px', marginTop: 10 }}>
                           <ReactEcharts option={this.getOption2('工作温度图',store.series3)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
                         </div></TabPane>
+                      <TabPane tab="散点图" key="2">
+                        <div style={{ padding: '0 24px', marginTop: 10 }}>
+                          <ReactEcharts option={this.getOption3()} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                        </div>
+                      </TabPane>
                     </Tabs>
                   </Card>
                 </Col>
               </Row>
             </Col>
           </Row>
-          <EditAlarm props={alarm_modal} params={basicMsg} initialDatas={initialData} />
+          <EditAlarm props={alarm_modal} params={basicMsg} initialDatas={initialData} getDevicesList={this.getDevicesList}/>
           <IntializeModal
               props={initialize_modal}
               params={basicMsg}
@@ -441,6 +441,7 @@ class Monitor extends React.Component {
         console.log('arr',arr);
         this.getAngle(arr);
         this.getTemperature(arr);
+        this.getXY(arr);
       }
     })
   };
@@ -607,7 +608,56 @@ class Monitor extends React.Component {
       store.echartsData=[];
     }
   };
-
+  //获取XY轴坐标
+  getXY=(arr)=>{
+    let filterArr=[];
+    let data2=[];
+    console.log('获取XY轴坐标',arr);
+    if(arr.length!=0){
+      arr.map((item)=>{
+        data2=[];
+        filterArr.push({
+          name:item.sensorID,
+          type:'scatter',
+          stack: '总量',
+          data:item.data.map(v=>
+            [v.sdt_x*1,v.sdt_y*1]
+          )
+        })
+      });
+      store.echartsData=arr.map(item=>item.sensorID);
+      store.series4=filterArr;
+      console.log(filterArr,'series4');
+    }else{
+      store.series4=filterArr;
+      store.echartsData=[];
+    }
+  };
+  getOption3=()=>{
+    return {
+      title: {
+        text: '散点图',
+        left: 'left',
+        top: 0
+      },
+      xAxis: {
+        name:'X',
+        type: 'value'
+      },
+      yAxis: {
+        name:'Y',
+        type: 'value'
+      },
+      legend: {
+        data: store.echartsData
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>({b}{c})'
+      },
+      series: store.series4
+    }
+  };
   getOption = () => {
     return {
       title: [{

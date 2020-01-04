@@ -31,6 +31,7 @@ class EditAlarm extends Component{
       },
       success: (res) => {
         console.log(res);
+        this.props.getDevicesList();
       },
       complete: () => {
         store.alarm_modal.visible = false;

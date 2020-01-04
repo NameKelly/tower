@@ -57,11 +57,13 @@ class Store {
   @observable echartsXData=[];
   @observable series=[];
   @observable series3=[];
+  @observable series4=[];
   @observable details_echartsData=[];
   @observable details_echartsXData=[];
   @observable details_series=[];
   @observable details_series2=[];
   @observable details_series3=[];
+    @observable details_series4=[];
   @observable machine_site_id ='';
   @observable sensorID ='';
   @observable warn_data=[];

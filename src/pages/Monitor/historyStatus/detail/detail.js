@@ -22,6 +22,7 @@ for (let i = 0; i < 20; i += 1) {
   });
 }
 
+@observer
 export default class Detail extends Component {
   constructor(props){
     super(props);
@@ -33,7 +34,7 @@ export default class Detail extends Component {
 
   componentDidMount() {
       //this.getData();
-      this.getOption2('倾角图',store.details_series)
+      this.getOption2('倾角图',store.details_series);
       this.getOption2('工作温度图',store.details_series3)
   }
 
@@ -52,6 +53,7 @@ export default class Detail extends Component {
               let arr=this.filterData(data,'machine_site_id','sensorID');
               this.getAngle(arr);
               this.getTemperature(arr);
+              this.getXY(arr);
               /*this.getVoltage(arr);*/
 
           }
@@ -139,6 +141,26 @@ export default class Detail extends Component {
         store.details_echartsData=arr.map(item=>item.sensorID);
         store.details_echartsXData=arr[0].data.map(item=>item.create_time)
     };
+    //获取散点图
+    getXY=(arr)=>{
+        let filterArr=[];
+        console.log('获取XY轴坐标',arr);
+        if(arr.length!=0){
+            arr.map((item)=>{
+                filterArr.push({
+                    name:item.sensorID,
+                    type:'scatter',
+                    stack: '总量',
+                    data:item.data.map(v=>
+                        [v.sdt_x*1,v.sdt_y*1]
+                    )
+                })
+            });
+            store.details_echartsData=arr.map(item=>item.sensorID);
+            store.details_series4=filterArr;
+            console.log(filterArr,'series4');
+        }
+    };
     getOption2=(title, series)=>{
         return{
             title: {
@@ -180,11 +202,36 @@ export default class Detail extends Component {
             series: series
         }
     };
+    getOption3=()=>{
+        return {
+            title: {
+                text: '散点图',
+                left: 'left',
+                top: 0
+            },
+            xAxis: {
+                name:'X',
+                type: 'value'
+            },
+            yAxis: {
+                name:'Y',
+                type: 'value'
+            },
+            legend: {
+                data: store.details_echartsData
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>({b}{c})'
+            },
+            series: store.details_series4
+        }
+    };
     state={
         series:[],
         series3:[]
     };
-    //
+
   render(){
     return(
         <Fragment>
@@ -221,10 +268,6 @@ export default class Detail extends Component {
                 />*/}
                 </div>
               </TabPane>
-              {/*<TabPane tab="电池电压图" key="2">
-                <div style={{ padding: '0 24px', marginTop: 10 }}>
-
-                </div></TabPane>*/}
               <TabPane tab="工作温度图" key="3">
                 <div style={{ padding: '0 24px', marginTop: 10 }}>
                     <ReactEcharts option={this.getOption2('工作温度图',store.details_series3)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
@@ -234,7 +277,10 @@ export default class Detail extends Component {
                     titleMap={{ y1: '客流量', y2: '支付笔数' }}
                 />*/}
                 </div></TabPane>
-
+                <TabPane tab="散点图" key="2">
+                <div style={{ padding: '0 24px', marginTop: 10 }}>
+                    <ReactEcharts option={this.getOption3(store.details_series4)} style={{width: '100%'}} notMerge={true} lazyUpdate={true} />
+                </div></TabPane>
             </Tabs>
           </Card>
           <div style={{height:'50px',lineHeight:'50px',textAlign:'center'}}>copyright© 五邑大学系统工程研究所</div>
