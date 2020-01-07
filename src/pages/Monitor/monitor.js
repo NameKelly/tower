@@ -368,6 +368,7 @@ class Monitor extends React.Component {
           this.getDeviceData('sensorID',store.sensorID_data[1].sensorID);//初始传感器历史数据
         }else{
           store.months_data = [];
+          store.realtimeData ={};
         }
       }
     });
