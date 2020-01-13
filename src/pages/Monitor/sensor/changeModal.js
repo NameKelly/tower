@@ -1,14 +1,18 @@
 import React,{ Component,Fragment} from 'react';
-import {Modal, Form, Input, Button, AutoComplete} from 'antd'
+import {Modal, Form, Input, Button, AutoComplete,DatePicker} from 'antd'
 import store from '../store';
 import { observer } from 'mobx-react';
 import request from '../../../helpers/request';
 import CommonFormConfig from "../../../common/common-form";
+import moment from 'moment';
+const dateFormat = 'YYYY/MM/DD HH:mm:ss';
 
 const FormItem = Form.Item;
 let site_id='';
-let tower_hight='';
+let machine_site_id='';
 let company_id='';
+let upper_date='';
+let lower_date='';
 
 
 
@@ -28,8 +32,8 @@ class ChangeModal extends Component{
                     visible={visible}
                     title='修改'
                     footer={[
-                        <Button key="noPass" type="primary" onClick={()=>this.setReviseData(store.is_lower)} >
-                            {store.is_lower=='0'?'下塔':'上塔'}
+                        <Button key="noPass" type="primary" onClick={()=>this.setReviseData()} >
+                            确定
                         </Button>,
                         <Button key="cancel" onClick={() => store.changeModal.visible=false}>
                             取消
@@ -80,22 +84,18 @@ class ChangeModal extends Component{
                         <FormItem label='上塔时间：' {...CommonFormConfig}>
                             {
                                 getFieldDecorator('upper_date', {
-                                    rules: [{
-                                        message: '请输入上塔时间',
-                                    }],
+
                                 })(
-                                    <Input/>
+                                    <DatePicker format={dateFormat} onChange={this.onChange1} style={{width:'100%'}} placeholder={upper_date}/>
                                 )
                             }
                         </FormItem>
                         <FormItem label='下塔时间：' {...CommonFormConfig}>
                             {
                                 getFieldDecorator('lower_date', {
-                                    rules: [{
-                                        message: '请输入下塔时间',
-                                    }],
+
                                 })(
-                                    <Input/>
+                                    <DatePicker format={dateFormat} onChange={this.onChange2} style={{width:'100%'}} placeholder={lower_date}/>
                                 )
                             }
                         </FormItem>
@@ -112,33 +112,39 @@ class ChangeModal extends Component{
                             console.log('record',record);
                             store.is_lower=record.is_lower;
                             site_id=store.changeModal.record.site_id;
-                            tower_hight=store.changeModal.record.tower_hight;
+                            machine_site_id=store.changeModal.record.machine_site_id;
                             company_id=store.changeModal.record.company_id;
+                            if(record.upper_date!=''){
+                                upper_date=moment(record.upper_date).format('YYYY-MM-DD HH:mm:ss');
+                            }
+                            if(record.lower_date!=''){
+                                lower_date=moment(record.lower_date).format('YYYY-MM-DD HH:mm:ss');
+                            }
+
+                            console.log('默认日期',upper_date,lower_date);
         this.props.form.setFieldsValue({
             site_name:store.changeModal.record.site_name,
             site_addr:store.changeModal.record.site_address,
             sensorID:store.changeModal.record.sensorID,
-            upper_date:store.changeModal.record.upper_date,
-            lower_date:store.changeModal.record.lower_date
+           /* upper_date:store.changeModal.record.upper_date,
+            lower_date:store.changeModal.record.lower_date*/
         });
     };
-    setReviseData=(is_lower)=>{
+    setReviseData=()=>{
 
-        let type=is_lower=='0'?'下塔':'上塔';
         let { getFieldsValue } = this.props.form;
         let values = getFieldsValue();
-        let {sensorID,upper_date,lower_date} = values;
+        let {sensorID} = values;
         console.log('values',values);
         request({
-            url:'api/operation_sensor',
+            url:'api/add_sensor_sx',
             data:{
-                type:type,
                 sensorID,
                 site_id:site_id,
-                tower_height:tower_hight,
                 company_id:company_id,
                 upper_date,
-                lower_date
+                lower_date,
+                machine_site_id,
             },
             success: (res) => {
                 console.log('res',res);
@@ -161,9 +167,9 @@ class ChangeModal extends Component{
                 console.log('res.data',res.data);
                 if(res.data.length==1){
                     site_id=res.data[0].site_id;
-                    tower_hight=res.data[0].tower_hight;
+                    //machine_site_id=res.data[0].machine_site_id;
                     company_id=res.data[0].company_id;
-                    console.log('tower_hight',tower_hight,site_id,company_id)
+                    console.log('11111',site_id,company_id)
                 }
                 let data=Array.from(res.data);
                 console.log('是否为数组',data instanceof Array,data);
@@ -182,6 +188,14 @@ class ChangeModal extends Component{
             site_addr:store.reviewChange.addr,
         });
 
+    };
+    onChange2=(value)=>{
+        lower_date=moment(value).format('YYYY-MM-DD HH:mm:ss');
+        console.log('date',lower_date)
+    };
+    onChange1=(value)=>{
+        upper_date=moment(value).format('YYYY-MM-DD HH:mm:ss');
+        console.log('date',upper_date)
     };
 }
 
