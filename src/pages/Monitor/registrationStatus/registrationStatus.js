@@ -1,5 +1,5 @@
 import React ,{Component,Fragment} from 'react';
-import {Input, Button, Table, Pagination,Card,Select} from 'antd';
+import {Input, Button, Table, Pagination,Card,Select,Modal} from 'antd';
 import AddDevice from './addDevice'
 import store from "../store";
 import { observer } from 'mobx-react';
@@ -97,19 +97,28 @@ export default class RegistrationStatus extends Component{
         );
     }
     handleDelete=(record)=>{
-        console.log('record.machine_id',record.machine_id);
-        request({
-            url: 'api/delete_machine',
-            data:{
-                id:record.machine_id
+                        let _this=this;
+        Modal.confirm({
+            title: '确认删除？',
+            onOk() {
+                console.log('record.machine_id',record.machine_id);
+                request({
+                    url: 'api/delete_machine',
+                    data:{
+                        id:record.machine_id
+                    },
+                    success: ({
+                                  data
+                              }) => {
+                        console.log('api/delete_machine',data);
+                        _this.getData();
+                    }
+                });
             },
-            success: ({
-                          data
-                      }) => {
-                console.log('api/delete_machine',data);
-                this.getData();
-            }
-        });
+            onCancel() {
+                console.log('Cancel');
+            },
+        })
     };
     selectChange=(value)=>{
         this.setState({
@@ -125,6 +134,7 @@ export default class RegistrationStatus extends Component{
         this.getData(data);
     };
     getData=(key)=>{
+        console.log('getData');
         let data={};
         if(key){
             data=key

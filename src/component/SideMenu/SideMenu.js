@@ -75,10 +75,18 @@ export default class SiderMenu extends React.Component {
                             </Menu.Item>:null}
                     {
                         sessionStorage.getItem('user')!='admin'?
+                            <Menu.Item key="9">
+                                <Link to='/sensor'>
+                                    <Icon type="star" />
+                                    <span>传感器管理</span>
+                                </Link>
+                            </Menu.Item>:null}
+                    {
+                        sessionStorage.getItem('user')!='admin'?
                             <Menu.Item key="7">
                                 <Link to='/siteSetting'>
                                     <Icon type="desktop" />
-                                    <span>站名设置</span>
+                                    <span>站点设置</span>
                                 </Link>
                             </Menu.Item>:null}
                     {

@@ -30,6 +30,7 @@ class App extends React.Component {
 					<Content className={style.subContent}>
 						<div className={style.inContent}>
 							<Switch>
+								<Route path='/sensor' render={() => <WrapperComponent Comp={import('./Monitor/sensor/sensor')} globalStore={globalStore} name='sensor' />}/>
 								<Route path='/warn' render={() => <WrapperComponent Comp={import('./Monitor/warn/warn')} globalStore={globalStore} name='warn' />}/>
 								<Route path='/addSite' render={() => <WrapperComponent Comp={import('./Monitor/siteSetting/addSite')} globalStore={globalStore} name='addSite' />}/>
 								<Route path='/siteSetting' render={() => <WrapperComponent Comp={import('./Monitor/siteSetting/siteSetting')} globalStore={globalStore} name='siteSetting' />}/>

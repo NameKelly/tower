@@ -275,7 +275,7 @@ class Monitor extends React.Component {
 
                   <Card title='本月工作情况' style={{ height: "100%" }}
                         extra={<Link to={'/historyStatus'}>历史工作情况</Link>} >
-                    <Table columns={this.workColumns} dataSource={months_data} size={"small"} pagination={false} scroll={{ y: 200 }} rowKey={(record,index)=>index} />
+                    <Table columns={this.workColumns} dataSource={months_data} size={"small"} pagination={false} scroll={{ y: 200,x:700 }} rowKey={(record,index)=>index} />
                   </Card>
                 </Col>
                 <Col span={18} style={{ marginTop: 10, height: 420 }}>

@@ -37,7 +37,7 @@ class Revise extends Component{
             <Modal
                 onCancel={() => store.revise_modal.visible= false}
                 visible={visible}
-                title='传感器设置'
+                title='传感器审核'
                 {...CommonModalConfig}
                 footer={[
                     <Button key="pass" type="primary" onClick={()=>this.setReviseData('通过')}>
@@ -112,7 +112,7 @@ class Revise extends Component{
                                     message: '请输入地址',
                                 }],
                             })(
-                                <Input placeholder={store.reviseMsg.site_address}/>
+                                <Input placeholder={store.reviseMsg.site_address} disabled/>
                             )
                         }
                     </FormItem>
@@ -123,7 +123,7 @@ class Revise extends Component{
                                     required: false, message: '请输入高度',
                                 }],
                             })(
-                                <Input  onChange={(e)=>{this.handleChangeHeight(e)}} placeholder={store.reviseMsg.tower_hight}/>
+                                <Input  onChange={(e)=>{this.handleChangeHeight(e)}} placeholder={store.reviseMsg.tower_hight} disabled/>
                             )
                         }
                     </FormItem>
@@ -134,7 +134,7 @@ class Revise extends Component{
                                     message: '请输入地址',
                                 }],
                             })(
-                                <Input placeholder={store.reviseMsg.maintain_company}/>
+                                <Input placeholder={store.reviseMsg.maintain_company} disabled/>
                             )
                         }
                     </FormItem>

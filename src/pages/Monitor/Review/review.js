@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Table, Input, Breadcrumb, Select, Pagination,Card} from 'antd';
+import {Table, Input, Breadcrumb, Select, Pagination,Card,Popconfirm,Modal} from 'antd';
 import { Link } from 'react-router-dom';
 import request from '../../../helpers/request';
 import store from '../store';
@@ -55,8 +55,14 @@ export default class Review extends Component{
                 render: (text, record,index) => {
                     return (
                         <Fragment>
-                            <a onClick={()=>{store.reviseMsg=record;store.revise_modal.visible=true}}>修改</a>
+                            <a onClick={()=>{store.reviseMsg=record;store.revise_modal.visible=true}}>审核</a>
                             <a style={{color:'red'}} onClick={()=>this.handleDelete(record)}> 删除 </a>
+                            {/*<Popconfirm title="确认删除？" okText="确定" cancelText="取消"
+                                        onConfirm={()=>this.handleDelete(record)}
+                                        arrowPointAtCenter
+                            >
+                                <a style={{color:'red'}}> 删除 </a>
+                            </Popconfirm>*/}
                         </Fragment>
                     )}
             }
@@ -109,19 +115,29 @@ export default class Review extends Component{
         );
     }
     handleDelete=(record)=>{
-        console.log('删除',record,record.machine_id);
-        request({
-            url:'api/delete_tower_examine',
-            data:{
-                id:record.id
+                    let _this=this;
+        Modal.confirm({
+            title: '确认删除？',
+            onOk() {
+                console.log('删除',record,record.machine_id);
+                request({
+                    url:'api/delete_tower_examine',
+                    data:{
+                        id:record.id
+                    },
+                    success: (res) => {
+                        console.log('res',res);
+                        _this.getData();
+                    },
+                    complete: () => {
+                    }
+                })
             },
-            success: (res) => {
-                console.log('res',res);
-                this.getData();
+            onCancel() {
+                console.log('Cancel');
             },
-            complete: () => {
-            }
         })
+
     };
     onSearch=(value)=>{
         let key=this.state.selectValue;

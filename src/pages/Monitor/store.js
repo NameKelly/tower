@@ -142,6 +142,13 @@ class Store {
   @observable companyData=[];
   @observable companyArr=[];
 
+  @observable sensorList=[];
+  @observable changeModal={
+    visible: false,
+    record:'',
+  };
+@observable is_lower='';
+
 
 
 

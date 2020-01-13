@@ -62,7 +62,6 @@ class SiteSetting extends Component{
             {
                 title:'站点地址',
                 dataIndex:'site_address',
-                align:'center'
             }, {
                 title:'站点编码',
                 dataIndex:'site_id',
@@ -139,7 +138,7 @@ class SiteSetting extends Component{
                     pagination={true}
                     bordered
                     size={'small'}
-                    scroll={{ x: 1500 }}
+                    scroll={{ x: 1800 }}
                     rowKey={(record,index) =>index}
                 />
                <UpdateSiteModal props={store.siteSetting_modal} getData={this.getData} info={this.state.getData}/>
